@@ -1,0 +1,9 @@
+$color-primary: #6666ff;
+$color-secondary: #535e7a;
+$color-accent: #37e89c;
+
+$color-timeline: darken($color-secondary, 25%);
+$color-timeline-header: darken($color-secondary, 50%);
+$color-timeline-labels: $color-secondary;
+$color-track-border: $color-timeline-header;
+$color-item: $color-secondary;

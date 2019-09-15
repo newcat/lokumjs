@@ -1,0 +1,38 @@
+.timeline-item {
+    background-color: $color-item;
+    height: calc(100% - 20px);
+    border-radius: 5px;
+    border-width: 0;
+    border: 0 solid $color-accent;
+    transition: border-width 0.1s linear;
+
+    &.--selected {
+        border-width: 2px;
+
+        &::before, &::after {
+            content: "";
+            position: absolute;
+            height: 50%;
+            width: 4px;
+            top: 25%;
+            background-color: $color-secondary;
+            border-style: solid;
+            border-color: $color-accent;
+            cursor: col-resizex;
+        }
+
+        &::before {
+            left: -6px;
+            border-radius: 3px 0 0 3px;
+            border-width: 3px 0 3px 3px;
+        }
+
+        &::after {
+            right: -6px;
+            border-radius: 0 3px 3px 0;
+            border-width: 3px 3px 3px 0;
+        }
+
+    }
+
+}
