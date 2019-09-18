@@ -1,10 +1,11 @@
 <template lang="pug">
-.timeline
+.timeline(@mouseup="onMouseup", @mousedown="onMousedown", @mouseleave="onMouseup")
     .timeline-track(
         v-for="t in tracks",
         :key="t"
         @mouseenter="hoveredTrack = t"
         @mouseleave="hoveredTrack = ''"
+        @mousemove="onMousemove"
     )
         timeline-item(
             v-for="item, i in getItems(t)",
@@ -44,20 +45,12 @@ export default class Timeline extends Vue {
     isDragging = false;
     dragArea: ItemArea = "center";
     dragItem: IItem|null = null;
-    dragStartPosition = { x: 0, y: 0 };
+    dragStartPosition = 0;
+    dragStartTrack = "";
     dragStartStates: IItem[] = [];
 
     get markers() {
         return this.positionCalculator.getMarkers(2);
-    }
-
-    get viewItems(): IViewItem[] {
-        return this.items.map((i) => {
-            const vi = i as IViewItem;
-            vi.inDanger = vi.inDanger || false;
-            vi.selected = vi.selected || false;
-            return vi;
-        });
     }
 
     getItems(track: string) {
@@ -68,31 +61,66 @@ export default class Timeline extends Vue {
         if (area === "center") {
             if (ev.ctrlKey) {
                 if (this.selected.includes(item.id)) {
-                    this.selected.splice(this.selected.indexOf(item.id));
+                    this.selected.splice(this.selected.indexOf(item.id), 1);
                 } else {
                     this.selected.push(item.id);
                 }
-            } else {
+            } else if (!this.selected.includes(item.id)) {
                 this.selected = [item.id];
             }
         }
         this.dragArea = area;
         this.dragItem = item;
+        this.dragStartPosition = ev.clientX;
+        this.dragStartTrack = this.hoveredTrack;
         this.isDragging = true;
-        this.dragStartStates = this.items.map((i) => JSON.parse(JSON.stringify(i)));
+        this.dragStartStates = this.selected.map((id) => JSON.parse(JSON.stringify(
+            this.items.find((i) => i.id === id))));
     }
 
     onMousemove(ev: MouseEvent) {
         if (this.isDragging) {
             if (this.dragArea === "leftHandle") {
-                this.dragItem!.start = this.positionCalculator.getX
+                const newStart = this.positionCalculator.getUnit(ev.clientX);
+                if (this.validateItem({...this.dragItem!, start: newStart})) {
+                    this.dragItem!.start = newStart;
+                }
+            } else if (this.dragArea === "rightHandle") {
+                const newEnd = this.positionCalculator.getUnit(ev.clientX);
+                if (this.validateItem({...this.dragItem!, end: newEnd})) {
+                    this.dragItem!.end = newEnd;
+                }
+            } else {
+                const diffUnits = Math.floor((ev.clientX - this.dragStartPosition) / this.positionCalculator.unitWidth);
+                this.dragStartStates.forEach((i) => {
+                    const item = this.items.find((j) => j.id === i.id)!;
+                    if (this.validateItem({...item, start: i.start + diffUnits, end: i.end + diffUnits})) {
+                        item.start = i.start + diffUnits;
+                        item.end = i.end + diffUnits;
+                    }
+                });
             }
+        }
+    }
+
+    onMousedown(ev: MouseEvent) {
+        if (!ev.ctrlKey) {
+            this.selected = [];
         }
     }
 
     onMouseup() {
         this.dragItem = null;
         this.isDragging = false;
+    }
+
+    validateItem(item: IItem) {
+        const otherItems = this.items.filter((i) => i.track === item.track && i.id !== item.id);
+        return !otherItems.some((i) =>
+            (i.start <= item.start && i.end >= item.start) ||
+            (i.start <= item.end && i.end >= item.end) ||
+            (i.start >= item.start && i.end <= item.end)
+        );
     }
 
 }
