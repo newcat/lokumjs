@@ -1,3 +1,8 @@
+export interface ITrack {
+    id: string;
+    name: string;
+}
+
 export interface IItem {
     id: string;
     track: string;
