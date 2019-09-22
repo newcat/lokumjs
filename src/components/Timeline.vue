@@ -1,32 +1,40 @@
 <template lang="pug">
 .timeline(@mouseup="onMouseup", @mousedown="onMousedown", @mouseleave="onMouseup")
-    .timeline-track(
-        v-for="t in editor.tracks",
-        :key="t.id"
-        @mouseenter="hoveredTrack = t"
-        @mouseleave="hoveredTrack = ''"
-        @mousemove="onMousemove"
-    )
-        timeline-item(
-            v-for="item, i in getItems(t.id)",
-            :key="i",
-            :position-calculator="positionCalculator",
-            :item="item"
-            :selected="selected.includes(item.id)"
-            @mousedown="onItemMousedown"
+    timeline-header(:markers="markers", :labelfun="(u) => u + 's'")
+    .item-container
+        .marker-line(
+            v-for="m in majorMarkers",
+            :key="m.unit",
+            :style="{ transform: `translateX(${m.position}px)` }"
         )
+        .timeline-track(
+            v-for="t in editor.tracks",
+            :key="t.id"
+            @mouseenter="hoveredTrack = t"
+            @mouseleave="hoveredTrack = ''"
+            @mousemove="onMousemove"
+        )
+            timeline-item(
+                v-for="item in getItems(t.id)",
+                :key="item.id",
+                :position-calculator="positionCalculator",
+                :item="item"
+                :selected="selected.includes(item.id)"
+                @mousedown="onItemMousedown"
+            )
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { PositionCalculator } from "../PositionCalculator";
 
+import TimelineHeader from "./Header.vue";
 import TimelineItem from "./Item.vue";
 import { Editor } from "../Editor";
 import { IItem, DragDirection, IViewItem, ItemArea, ITrack } from "../types";
 
 @Component({
-    components: { TimelineItem }
+    components: { TimelineHeader, TimelineItem }
 })
 export default class Timeline extends Vue {
 
@@ -46,7 +54,16 @@ export default class Timeline extends Vue {
     dragStartStates: IItem[] = [];
 
     get markers() {
-        return this.positionCalculator.getMarkers(2);
+        return this.positionCalculator.getMarkers(5, 3);
+    }
+
+    get majorMarkers() {
+        return this.markers.filter((m) => m.type === "major");
+    }
+
+    mounted() {
+        window.addEventListener("resize", () => this.onResize());
+        this.onResize();
     }
 
     getItems(track: string) {
@@ -88,11 +105,36 @@ export default class Timeline extends Vue {
                 }
             } else {
                 const diffUnits = Math.floor((ev.clientX - this.dragStartPosition) / this.positionCalculator.unitWidth);
+
+                const startTrackIndex = this.editor.tracks.indexOf(this.dragStartTrack!);
+                const endTrackIndex = this.editor.tracks.indexOf(this.hoveredTrack!);
+                let diffTracks = 0;
+                if (startTrackIndex >= 0 && endTrackIndex >= 0) {
+                    diffTracks = endTrackIndex - startTrackIndex;
+                }
+                this.dragStartStates.forEach((i) => {
+                    const trackIndex = this.editor.tracks.findIndex((t) => i.track === t.id);
+                    const newTrackIndex = trackIndex + diffTracks;
+                    if (newTrackIndex < 0) {
+                        diffTracks = -trackIndex;
+                    } else if (newTrackIndex >= this.editor.tracks.length) {
+                        diffTracks = this.editor.tracks.length - trackIndex;
+                    }
+                });
+
                 this.dragStartStates.forEach((i) => {
                     const item = this.editor.items.find((j) => j.id === i.id)!;
-                    if (this.editor.validateItem({...item, start: i.start + diffUnits, end: i.end + diffUnits})) {
+                    const newTrackIndex = this.editor.tracks.findIndex((t) => t.id === i.track) + diffTracks;
+                    const newTrackId = this.editor.tracks[newTrackIndex].id;
+                    if (this.editor.validateItem({
+                        ...item,
+                        start: i.start + diffUnits,
+                        end: i.end + diffUnits,
+                        track: newTrackId
+                    })) {
                         item.start = i.start + diffUnits;
                         item.end = i.end + diffUnits;
+                        item.track = newTrackId;
                     }
                 });
             }
@@ -108,6 +150,10 @@ export default class Timeline extends Vue {
     onMouseup() {
         this.dragItem = null;
         this.isDragging = false;
+    }
+
+    onResize() {
+        this.positionCalculator.visibleWidth = this.$el.clientWidth;
     }
 
 }

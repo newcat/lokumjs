@@ -21,6 +21,9 @@ export default class App extends Vue {
     mounted() {
         const { id: tid1 } = this.editor.addTrack("Track 1");
         const { id: tid2 } = this.editor.addTrack("Track 2");
+        this.editor.addTrack("Track 3");
+        this.editor.addTrack("Track 4");
+        this.editor.addTrack("Track 5");
         this.editor.addItem(tid1, 5, 10);
         this.editor.addItem(tid1, 15, 30);
         this.editor.addItem(tid2, 8, 25);
@@ -28,3 +31,9 @@ export default class App extends Vue {
 
 }
 </script>
+
+<style>
+html {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+</style>

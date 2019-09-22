@@ -1,0 +1,39 @@
+.timeline-header {
+
+    position: relative;
+    width: 100%;
+    height: 30px;
+    background-color: $color-timeline-header;
+    font-size: 0.8em;
+
+    & > .marker {
+        position: absolute;
+        bottom: 10px;
+        left: 0;
+
+        &::after {
+            content: "";
+            position: absolute;
+            width: 4px;
+            height: 5px;
+            bottom: -8px;
+            left: calc(50% - 2px);
+        }
+
+        &.--major {
+            color: $color-timeline-labels-major;
+            &::after {
+                background-color: $color-timeline-labels-major;
+            }
+        }
+
+        &.--minor {
+            color: $color-timeline-labels-minor;
+            &::after {
+                background-color: $color-timeline-labels-minor;
+            }
+        }
+
+    }
+
+}

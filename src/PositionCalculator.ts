@@ -16,14 +16,18 @@ export class PositionCalculator {
         return Math.floor((x - this.offset) / this.unitWidth);
     }
 
-    public getMarkers(nthUnit: number) {
+    public getMarkers(nthUnit: number, majorMultiplier = 1) {
         const markers = [];
         let n = 0;
         let x = 0;
         do {
             x = this.getX(n);
             if (x > 0 && x < this.visibleWidth) {
-                markers.push(x);
+                if (n % majorMultiplier === 0) {
+                    markers.push({ type: "major", unit: n, position: x });
+                } else {
+                    markers.push({ type: "minor", unit: n, position: x });
+                }
             }
             n += nthUnit;
         } while (x < this.visibleWidth);

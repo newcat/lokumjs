@@ -2,8 +2,10 @@ $color-primary: #6666ff;
 $color-secondary: #535e7a;
 $color-accent: #37e89c;
 
-$color-timeline: darken($color-secondary, 25%);
-$color-timeline-header: darken($color-secondary, 50%);
-$color-timeline-labels: $color-secondary;
-$color-track-border: $color-timeline-header;
+$color-timeline: #363b4a;
+$color-timeline-header: #2a2e3b;
+$color-timeline-labels-major: #626773;
+$color-timeline-labels-minor: #3c404e;
+$color-timeline-marker-line: #2f3442;
+$color-track-border: #2f3442;
 $color-item: $color-secondary;

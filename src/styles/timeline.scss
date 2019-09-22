@@ -1,4 +1,18 @@
 .timeline {
     width: 100%;
     background-color: $color-timeline;
+
+    .item-container {
+        position: relative;
+    }
+
+    .marker-line {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 1px;
+        background-color: $color-timeline-marker-line;
+    }
+
 }
