@@ -1,6 +1,8 @@
 .timeline {
     width: 100%;
     background-color: $color-timeline;
+    user-select: none;
+    --moz-user-select: none;
 
     .item-container {
         position: relative;

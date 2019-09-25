@@ -36,4 +36,37 @@
         z-index: 1;
     }
 
+    & .__menu {
+        position: absolute;
+        top: -30px;
+        height: 24px;
+        background: $color-accent;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+
+        & > .__item {
+            color: $color-track-border;
+            padding: 3px;
+            cursor: pointer;
+            
+            &:hover {
+                background-color: rgba(0, 0, 0, 0.1);
+            }
+            &:active {
+                background-color: rgba(0, 0, 0, 0.3);
+            }
+
+            &:first-child {
+                border-radius: 5px 0 0 5px;
+            }
+
+            &:last-child {
+                border-radius: 0 5px 5px 0;
+            }
+
+        }
+
+    }
+
 }

@@ -21,6 +21,7 @@
                 :item="item"
                 :selected="selected.includes(item.id)"
                 @mousedown="onItemMousedown"
+                @remove="editor.removeItem(item)"
             )
 </template>
 
