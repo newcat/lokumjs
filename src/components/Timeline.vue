@@ -1,5 +1,10 @@
 <template lang="pug">
-.timeline(@mouseup="onMouseup", @mousedown="onMousedown", @mouseleave="onMouseup")
+.timeline(
+    @mouseup="onMouseup",
+    @mousedown="onMousedown",
+    @mouseleave="onMouseup"
+    @contextmenu.prevent="openContextMenu"
+)
     timeline-header(:markers="markers", :labelfun="(u) => u + 's'")
     .item-container
         .marker-line(
@@ -29,13 +34,14 @@
 import { Component, Prop, Vue } from "vue-property-decorator";
 import { PositionCalculator } from "../PositionCalculator";
 
+import ContextMenu from "./ContextMenu.vue";
 import TimelineHeader from "./Header.vue";
 import TimelineItem from "./Item.vue";
 import { Editor } from "../Editor";
 import { IItem, DragDirection, IViewItem, ItemArea, ITrack } from "../types";
 
 @Component({
-    components: { TimelineHeader, TimelineItem }
+    components: { ContextMenu, TimelineHeader, TimelineItem }
 })
 export default class Timeline extends Vue {
 
@@ -48,11 +54,22 @@ export default class Timeline extends Vue {
 
     hoveredTrack: ITrack|null = null;
     isDragging = false;
-    dragArea: ItemArea = "center";
+    dragArea: ItemArea|"" = "";
     dragItem: IItem|null = null;
     dragStartPosition = 0;
     dragStartTrack: ITrack|null = null;
     dragStartStates: IItem[] = [];
+
+    contextMenu = {
+        x: 0,
+        y: 0,
+        open: false,
+        items: [
+            { label: "Add Item", submenu: [
+                { label: "TestItem", value: "AddTestItem" }
+            ] }
+        ]
+    };
 
     get markers() {
         return this.positionCalculator.getMarkers(5, 3);
@@ -104,7 +121,7 @@ export default class Timeline extends Vue {
                 if (this.editor.validateItem({...this.dragItem!, end: newEnd})) {
                     this.dragItem!.end = newEnd;
                 }
-            } else {
+            } else if (this.dragArea === "center") {
                 const diffUnits = Math.floor((ev.clientX - this.dragStartPosition) / this.positionCalculator.unitWidth);
 
                 const startTrackIndex = this.editor.tracks.indexOf(this.dragStartTrack!);
@@ -138,6 +155,11 @@ export default class Timeline extends Vue {
                         item.track = newTrackId;
                     }
                 });
+            } else {
+                this.positionCalculator.offset += ev.movementX;
+                if (this.positionCalculator.offset > 0) {
+                    this.positionCalculator.offset = 0;
+                }
             }
         }
     }
@@ -146,15 +168,23 @@ export default class Timeline extends Vue {
         if (!ev.ctrlKey) {
             this.selected = [];
         }
+        this.isDragging = true;
     }
 
     onMouseup() {
         this.dragItem = null;
         this.isDragging = false;
+        this.dragArea = "";
     }
 
     onResize() {
         this.positionCalculator.visibleWidth = this.$el.clientWidth;
+    }
+
+    openContextMenu(event: MouseEvent) {
+        this.contextMenu.open = true;
+        this.contextMenu.x = event.clientX;
+        this.contextMenu.y = event.clientY;
     }
 
 }

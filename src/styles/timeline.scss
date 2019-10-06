@@ -3,6 +3,7 @@
     background-color: $color-timeline;
     user-select: none;
     --moz-user-select: none;
+    overflow: hidden;
 
     .item-container {
         position: relative;
