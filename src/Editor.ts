@@ -1,6 +1,12 @@
 import { IItem, ITrack } from "./types";
+import uuidv1 from "uuid/v1";
+
+type AddItemType = Omit<IItem, "id"> & Record<string, any>;
 
 export class Editor {
+
+    /** Component that will be displayed inside the items */
+    public itemComponent: any;
 
     private _tracks: ITrack[] = [];
     private _items: IItem[] = [];
@@ -14,7 +20,7 @@ export class Editor {
     }
 
     public addTrack(name: string): ITrack {
-        const t: ITrack = { id: Math.random().toString(), name };
+        const t: ITrack = { id: this.generateId(), name };
         this._tracks.push(t);
         return t;
     }
@@ -26,10 +32,18 @@ export class Editor {
         }
     }
 
-    public addItem(trackId: string, start: number, end: number): IItem|undefined {
-        const i: IItem = { id: Math.random().toString(), track: trackId, start, end };
-        if (this.validateItem(i)) {
-            this._items.push(i);
+    public addItem(trackId: string, start: number, end: number): IItem|undefined;
+    public addItem(item: AddItemType): IItem|undefined;
+    public addItem(trackIdOrItem: string|AddItemType, start?: number, end?: number): IItem|undefined {
+        let item;
+        if (typeof(trackIdOrItem) === "string") {
+            item = { id: this.generateId(), track: trackIdOrItem as string, start: start!, end: end! };
+        } else {
+            item = { id: (trackIdOrItem as any).id || this.generateId(), ...trackIdOrItem };
+        }
+        if (this.validateItem(item)) {
+            this._items.push(item);
+            return item;
         } else {
             return undefined;
         }
@@ -54,6 +68,10 @@ export class Editor {
             (i.start <= item.end && i.end >= item.end) ||
             (i.start >= item.start && i.end <= item.end)
         );
+    }
+
+    private generateId() {
+        return uuidv1();
     }
 
 }

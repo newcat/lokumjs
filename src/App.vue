@@ -8,6 +8,7 @@
 import { Component, Vue } from "vue-property-decorator";
 import Timeline from "./components/Timeline.vue";
 import { Editor } from "./Editor";
+import TestComponent from "./components/TestComponent.vue";
 
 @Component({
     components: {
@@ -24,9 +25,10 @@ export default class App extends Vue {
         this.editor.addTrack("Track 3");
         this.editor.addTrack("Track 4");
         this.editor.addTrack("Track 5");
-        this.editor.addItem(tid1, 5, 10);
-        this.editor.addItem(tid1, 15, 30);
-        this.editor.addItem(tid2, 8, 25);
+        this.editor.addItem({ track: tid1, start: 5, end: 10, text: "Item 1" });
+        this.editor.addItem({ track: tid1, start: 15, end: 30, text: "Item 2" });
+        this.editor.addItem({ track: tid2, start: 8, end: 25, text: "Item 3" });
+        this.editor.itemComponent = TestComponent;
     }
 
 }

@@ -3,22 +3,19 @@
     @mouseup="onMouseup",
     @mousedown="onMousedown",
     @mouseleave="onMouseup"
-    @contextmenu.prevent="openContextMenu"
-)
+    @contextmenu.prevent="openContextMenu")
     timeline-header(:markers="markers", :labelfun="(u) => u + 's'")
     .item-container
         .marker-line(
             v-for="m in majorMarkers",
             :key="m.unit",
-            :style="{ transform: `translateX(${m.position}px)` }"
-        )
+            :style="{ transform: `translateX(${m.position}px)` }")
         .timeline-track(
             v-for="t in editor.tracks",
             :key="t.id"
             @mouseenter="hoveredTrack = t"
             @mouseleave="hoveredTrack = ''"
-            @mousemove="onMousemove"
-        )
+            @mousemove="onMousemove")
             timeline-item(
                 v-for="item in getItems(t.id)",
                 :key="item.id",
@@ -26,26 +23,25 @@
                 :item="item"
                 :selected="selected.includes(item.id)"
                 @mousedown="onItemMousedown"
-                @remove="editor.removeItem(item)"
-            )
+                @remove="editor.removeItem(item)")
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Provide, Vue } from "vue-property-decorator";
 import { PositionCalculator } from "../PositionCalculator";
 
-import ContextMenu from "./ContextMenu.vue";
 import TimelineHeader from "./Header.vue";
 import TimelineItem from "./Item.vue";
 import { Editor } from "../Editor";
 import { IItem, DragDirection, IViewItem, ItemArea, ITrack } from "../types";
 
 @Component({
-    components: { ContextMenu, TimelineHeader, TimelineItem }
+    components: { TimelineHeader, TimelineItem }
 })
 export default class Timeline extends Vue {
 
     @Prop()
+    @Provide("editor")
     editor!: Editor;
 
     positionCalculator = new PositionCalculator(10);
