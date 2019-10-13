@@ -1,7 +1,7 @@
 <template lang="pug">
-div(style="display:flex;height:100%;align-items:center;padding:4px;")
+div(style="display:flex;height:100%;align-items:center;padding:5px;")
     div(style="height:100%;")
-        img(:src="url", style="height:100%;")
+        img(:src="url", style="height:100%;border-radius:3px;")
     div(style="margin-left: 1em;") {{ item.text }}
 </template>
 
