@@ -2,7 +2,8 @@
 .timeline(
     @mouseup="onMouseup",
     @mousedown="onMousedown",
-    @mouseleave="onMouseup"
+    @mouseleave="onMouseup",
+    @wheel="onMousewheel",
     @contextmenu.prevent="openContextMenu")
     timeline-header(:markers="markers", :labelfun="(u) => u + 's'")
     .item-container
@@ -171,6 +172,21 @@ export default class Timeline extends Vue {
         this.dragItem = null;
         this.isDragging = false;
         this.dragArea = "";
+    }
+
+    onMousewheel(ev: MouseWheelEvent) {
+        ev.preventDefault();
+        let scrollAmount = ev.deltaY;
+        if (ev.deltaMode === 1) {
+            scrollAmount *= 32; // Firefox fix, multiplier is trial & error
+        }
+        if (ev.ctrlKey) {
+            // zoom
+            const newUnitWidth = this.positionCalculator.unitWidth * (1 - scrollAmount / 3000);
+            if (newUnitWidth >= 1) {
+                this.positionCalculator.unitWidth = newUnitWidth;
+            }
+        }
     }
 
     onResize() {
