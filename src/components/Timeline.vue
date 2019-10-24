@@ -5,6 +5,7 @@
     @mouseleave="onMouseup",
     @wheel="onMousewheel",
     @contextmenu.prevent="openContextMenu")
+
     timeline-header(:markers="markers", :labelfun="(u) => u + 's'")
     .item-container
         .marker-line(
