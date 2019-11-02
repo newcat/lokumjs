@@ -22,7 +22,7 @@ export class PositionCalculator {
         let x = 0;
         do {
             x = this.getX(n);
-            if (x > 0 && x < this.visibleWidth) {
+            if (x >= 0 && x < this.visibleWidth) {
                 if (n % majorMultiplier === 0) {
                     markers.push({ type: "major", unit: n, position: x });
                 } else {

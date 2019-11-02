@@ -78,4 +78,8 @@
         overflow: hidden;
     }
 
+    &:not(.--editing) > .__container {
+        pointer-events: none;
+    }
+
 }

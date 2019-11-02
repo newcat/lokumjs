@@ -1,13 +1,20 @@
 <template lang="pug">
 .timeline(
+    ref="timeline",
     @mouseup="onMouseup",
-    @mousedown="onMousedown",
     @mouseleave="onMouseup",
-    @wheel="onMousewheel",
-    @contextmenu.prevent="openContextMenu")
+    @mousedown="onMousedown",
+    @mousemove="onMousemove"
+    @wheel="onMousewheel"
+)
 
+    .header-filler
     timeline-header(:markers="markers", :labelfun="(u) => u + 's'")
-    .item-container
+
+    .track-header-container
+        track-header(v-for="t in editor.tracks", :key="t.id", :track="t")
+
+    .track-container(ref="trackcontainer")
         .marker-line(
             v-for="m in majorMarkers",
             :key="m.unit",
@@ -16,8 +23,7 @@
             v-for="t in editor.tracks",
             :key="t.id"
             @mouseenter="hoveredTrack = t"
-            @mouseleave="hoveredTrack = ''"
-            @mousemove="onMousemove")
+            @mouseleave="hoveredTrack = ''")
             timeline-item(
                 v-for="item in getItems(t.id)",
                 :key="item.id",
@@ -34,11 +40,12 @@ import { PositionCalculator } from "../PositionCalculator";
 
 import TimelineHeader from "./Header.vue";
 import TimelineItem from "./Item.vue";
+import TrackHeader from "./TrackHeader.vue";
 import { Editor } from "../Editor";
 import { IItem, DragDirection, IViewItem, ItemArea, ITrack } from "../types";
 
 @Component({
-    components: { TimelineHeader, TimelineItem }
+    components: { TimelineHeader, TimelineItem, TrackHeader }
 })
 export default class Timeline extends Vue {
 
@@ -57,17 +64,6 @@ export default class Timeline extends Vue {
     dragStartPosition = 0;
     dragStartTrack: ITrack|null = null;
     dragStartStates: IItem[] = [];
-
-    contextMenu = {
-        x: 0,
-        y: 0,
-        open: false,
-        items: [
-            { label: "Add Item", submenu: [
-                { label: "TestItem", value: "AddTestItem" }
-            ] }
-        ]
-    };
 
     get markers() {
         return this.positionCalculator.getMarkers(5, 3);
@@ -108,14 +104,15 @@ export default class Timeline extends Vue {
     }
 
     onMousemove(ev: MouseEvent) {
+        const x = ev.pageX - (this.$refs.trackcontainer as HTMLElement).offsetLeft;
         if (this.isDragging) {
             if (this.dragArea === "leftHandle") {
-                const newStart = this.positionCalculator.getUnit(ev.clientX);
+                const newStart = this.positionCalculator.getUnit(x);
                 if (this.editor.validateItem({...this.dragItem!, start: newStart})) {
                     this.dragItem!.start = newStart;
                 }
             } else if (this.dragArea === "rightHandle") {
-                const newEnd = this.positionCalculator.getUnit(ev.clientX);
+                const newEnd = this.positionCalculator.getUnit(x);
                 if (this.editor.validateItem({...this.dragItem!, end: newEnd})) {
                     this.dragItem!.end = newEnd;
                 }
@@ -192,12 +189,6 @@ export default class Timeline extends Vue {
 
     onResize() {
         this.positionCalculator.visibleWidth = this.$el.clientWidth;
-    }
-
-    openContextMenu(event: MouseEvent) {
-        this.contextMenu.open = true;
-        this.contextMenu.x = event.clientX;
-        this.contextMenu.y = event.clientY;
     }
 
 }
