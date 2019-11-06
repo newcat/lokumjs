@@ -1,7 +1,7 @@
 <template>
-  <div id="app">
-    <Timeline :editor="editor"/>
-  </div>
+    <div id="app" ref="wrapper" style="width:100%;height:200px;">
+        <canvas ref="canvas" width="600" height="200"></canvas>
+    </div>
 </template>
 
 <script lang="ts">
@@ -10,9 +10,12 @@ import Timeline from "./components/Timeline.vue";
 import { Editor } from "./Editor";
 import TestComponent from "./components/TestComponent.vue";
 
+import PixiTimeline from "./pixi/timeline";
+import * as PIXI from "pixi.js";
+
 @Component({
     components: {
-      Timeline
+        Timeline
     }
 })
 export default class App extends Vue {
@@ -29,6 +32,14 @@ export default class App extends Vue {
         this.editor.addItem({ track: tid1, start: 15, end: 30, text: "Item 2" });
         this.editor.addItem({ track: tid2, start: 8, end: 25, text: "Item 3" });
         this.editor.itemComponent = TestComponent;
+
+        const t = new PixiTimeline();
+        const app = new PIXI.Application({
+            view: this.$refs.canvas as HTMLCanvasElement,
+            resizeTo: this.$refs.wrapper as HTMLElement
+        });
+        t.render(app);
+
     }
 
 }

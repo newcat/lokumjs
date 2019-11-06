@@ -5,7 +5,9 @@
     "serve": "vue-cli-service serve",
     "build": "webpack --progress"
   },
-  "dependencies": {},
+  "dependencies": {
+    "pixi.js": "^5.2.0"
+  },
   "devDependencies": {
     "@types/uuid": "^3.4.5",
     "@vue/cli-plugin-typescript": "^3.11.0",
