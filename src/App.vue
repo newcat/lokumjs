@@ -1,6 +1,6 @@
 <template>
-    <div id="app" ref="wrapper" style="width:100%;height:200px;">
-        <canvas ref="canvas" width="600" height="200"></canvas>
+    <div id="app" ref="wrapper" style="width:100%;height:600px;">
+        <canvas ref="canvas"></canvas>
     </div>
 </template>
 
@@ -36,7 +36,8 @@ export default class App extends Vue {
         const t = new PixiTimeline();
         const app = new PIXI.Application({
             view: this.$refs.canvas as HTMLCanvasElement,
-            resizeTo: this.$refs.wrapper as HTMLElement
+            resizeTo: this.$refs.wrapper as HTMLElement,
+            antialias: true
         });
         t.render(app);
 
