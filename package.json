@@ -6,6 +6,7 @@
     "build": "webpack --progress"
   },
   "dependencies": {
+    "on-change": "^1.6.2",
     "pixi.js": "^5.2.0"
   },
   "devDependencies": {

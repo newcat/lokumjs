@@ -1,53 +1,27 @@
-<template lang="pug">
-.timeline(
-    ref="timeline",
-    @mouseup="onMouseup",
-    @mouseleave="onMouseup",
-    @mousedown="onMousedown",
-    @mousemove="onMousemove"
-    @wheel="onMousewheel"
-)
-
-    .header-filler
-    timeline-header(:markers="markers", :labelfun="(u) => u + 's'")
-
-    .track-header-container
-        track-header(v-for="t in editor.tracks", :key="t.id", :track="t")
-
-    .track-container(ref="trackcontainer")
-        .marker-line(
-            v-for="m in majorMarkers",
-            :key="m.unit",
-            :style="{ transform: `translateX(${m.position}px)` }")
-        .timeline-track(
-            v-for="t in editor.tracks",
-            :key="t.id"
-            @mouseenter="hoveredTrack = t"
-            @mouseleave="hoveredTrack = ''")
-            timeline-item(
-                v-for="item in getItems(t.id)",
-                :key="item.id",
-                :position-calculator="positionCalculator",
-                :item="item"
-                :selected="selected.includes(item.id)"
-                @mousedown="onItemMousedown"
-                @remove="editor.removeItem(item)")
-</template>
-
-<script lang="ts">
 import { Component, Prop, Provide, Vue } from "vue-property-decorator";
 import { PositionCalculator } from "../PositionCalculator";
 
-import TimelineHeader from "./Header.vue";
-import TimelineItem from "./Item.vue";
-import TrackHeader from "./TrackHeader.vue";
+
 import { Editor } from "../Editor";
 import { IItem, DragDirection, IViewItem, ItemArea, ITrack } from "../types";
+import { Drawable, RenderProperty } from "@/framework";
 
-@Component({
-    components: { TimelineHeader, TimelineItem, TrackHeader }
-})
-export default class Timeline extends Vue {
+import { Header } from "./header";
+
+export class Timeline extends Drawable {
+
+    @RenderProperty
+    editor!: Editor;
+
+    public render() {
+
+    }
+
+}
+
+
+@Component
+export class OldTimeline extends Vue {
 
     @Prop()
     @Provide("editor")
@@ -192,4 +166,3 @@ export default class Timeline extends Vue {
     }
 
 }
-</script>

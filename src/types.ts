@@ -1,6 +1,7 @@
 export interface ITrack {
     id: string;
     name: string;
+    height: number;
 }
 
 export interface IItem {
@@ -8,6 +9,7 @@ export interface IItem {
     track: string;
     start: number;
     end: number;
+    selected: boolean;
 }
 
 export interface IViewItem extends IItem {
