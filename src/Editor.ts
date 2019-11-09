@@ -20,7 +20,7 @@ export class Editor {
     }
 
     public addTrack(name: string): ITrack {
-        const t: ITrack = { id: this.generateId(), name };
+        const t: ITrack = { id: this.generateId(), name, height: 100 };
         this._tracks.push(t);
         return t;
     }
@@ -37,7 +37,7 @@ export class Editor {
     public addItem(trackIdOrItem: string|AddItemType, start?: number, end?: number): IItem|undefined {
         let item;
         if (typeof(trackIdOrItem) === "string") {
-            item = { id: this.generateId(), track: trackIdOrItem as string, start: start!, end: end! };
+            item = { id: this.generateId(), track: trackIdOrItem as string, start: start!, end: end!, selected: false };
         } else {
             item = { id: (trackIdOrItem as any).id || this.generateId(), ...trackIdOrItem };
         }

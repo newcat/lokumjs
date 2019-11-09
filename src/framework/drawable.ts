@@ -3,7 +3,7 @@ import { Graphics, Application } from "pixi.js";
 export abstract class Drawable {
 
     public graphics: Graphics = new Graphics();
-    private needsRender: boolean = false;
+    private needsRender: boolean = true;
 
     public constructor(protected app: Application) { }
 

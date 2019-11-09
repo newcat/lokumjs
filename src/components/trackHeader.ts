@@ -8,12 +8,12 @@ export default class TrackHeader extends Drawable {
     public track!: ITrack;
 
     @RenderProperty
-    public headerWidth!: number;
+    public width: number = 200;
 
     render() {
         this.graphics
             .beginFill(colors.header)
-                .drawRect(0, 0, this.headerWidth, this.track.height)
+                .drawRect(0, 0, this.width, this.track.height)
             .endFill();
     }
 

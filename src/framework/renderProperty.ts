@@ -9,14 +9,20 @@ export function RenderProperty(this: any, target: any, key: string) {
 
     // property setter
     const setter = function(this: any, newVal: any) {
+        const oldVal = this["_" + key];
+        if (oldVal === newVal) { return; }
+        if (typeof(oldVal) === "object") {
+            onChange.unsubscribe(this["_" + key]);
+        }
+        if (typeof(newVal) === "object") {
+            newVal = onChange(newVal, () => { this.needsRender = true; });
+        }
+        this["_" + key] = newVal;
         this.needsRender = true;
-        onChange.unsubscribe(this["_" + key]);
-        const proxy = onChange(newVal, () => { this.needsRender = true; });
-        this["_" + key] = proxy;
     };
 
     // Delete property.
-    if (delete this[key]) {
+    if (delete target[key]) {
         // Create new property with getter and setter
         Object.defineProperty(target, key, {
             get: getter,

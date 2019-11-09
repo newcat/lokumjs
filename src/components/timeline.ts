@@ -1,25 +1,58 @@
-import { Component, Prop, Provide, Vue } from "vue-property-decorator";
-import { PositionCalculator } from "../PositionCalculator";
-
-
 import { Editor } from "../Editor";
-import { IItem, DragDirection, IViewItem, ItemArea, ITrack } from "../types";
 import { Drawable, RenderProperty } from "@/framework";
 
 import { Header } from "./header";
+import { Track } from "./track";
 
 export class Timeline extends Drawable {
 
     @RenderProperty
     editor!: Editor;
 
+    renderTree = {
+        header: new Header(this.app),
+        tracks: new Map<string, Track>()
+    };
+
+    public setup() {
+        this.graphics.addChild(this.renderTree.header.graphics);
+    }
+
     public render() {
+
+        this.renderTree.header.tick();
+
+        let y = 0;
+        this.editor.tracks.forEach((track) => {
+            let trackView = this.renderTree.tracks.get(track.id);
+            if (!trackView) {
+                trackView = new Track(this.app);
+                trackView.track = track;
+                trackView.headerWidth = 200;
+                trackView.setup();
+                this.renderTree.tracks.set(track.id, trackView);
+                this.graphics.addChild(trackView.graphics);
+            }
+            trackView.y = y;
+            trackView.tick();
+            y += track.height;
+        });
+
+        const removedTracks = Array.from(this.renderTree.tracks.keys())
+            .filter((trackId) => !this.editor.tracks.find((t) => t.id === trackId));
+        removedTracks.forEach((t) => {
+            const view = this.renderTree.tracks.get(t)!;
+            const i = this.graphics.getChildIndex(view.graphics);
+            this.graphics.removeChildAt(i);
+            this.renderTree.tracks.delete(t);
+            view.destroy();
+        });
 
     }
 
 }
 
-
+/*
 @Component
 export class OldTimeline extends Vue {
 
@@ -166,3 +199,4 @@ export class OldTimeline extends Vue {
     }
 
 }
+*/

@@ -4,7 +4,7 @@ import colors from "@/colors";
 export class Header extends Drawable {
 
     @RenderProperty
-    private headerHeight = 20;
+    private headerHeight = 30;
 
     public render() {
         this.graphics
