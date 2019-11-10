@@ -37,7 +37,12 @@ export default class App extends Vue {
         t.editor = this.editor;
         t.setup();
         app.stage.addChild(t.graphics);
-        t.render();
+
+        function tick() {
+            requestAnimationFrame(() => tick());
+            t.tick();
+        }
+        tick();
 
     }
 

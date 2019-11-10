@@ -1,3 +1,4 @@
+import { Container } from "pixi.js";
 import { Editor } from "../Editor";
 import { Drawable, RenderProperty } from "@/framework";
 
@@ -11,17 +12,22 @@ export class Timeline extends Drawable {
 
     renderTree = {
         header: new Header(this.app),
+        trackContainer: new Container(),
         tracks: new Map<string, Track>()
     };
 
     public setup() {
+        this.addChild(this.renderTree.header);
         this.graphics.addChild(this.renderTree.header.graphics);
+        this.graphics.addChild(this.renderTree.trackContainer);
     }
 
     public render() {
+        console.log("Rendering");
 
         this.renderTree.header.tick();
 
+        this.renderTree.trackContainer.y = this.renderTree.header.headerHeight;
         let y = 0;
         this.editor.tracks.forEach((track) => {
             let trackView = this.renderTree.tracks.get(track.id);
@@ -31,7 +37,8 @@ export class Timeline extends Drawable {
                 trackView.headerWidth = 200;
                 trackView.setup();
                 this.renderTree.tracks.set(track.id, trackView);
-                this.graphics.addChild(trackView.graphics);
+                this.renderTree.trackContainer.addChild(trackView.graphics);
+                this.addChild(trackView);
             }
             trackView.y = y;
             trackView.tick();
@@ -42,8 +49,9 @@ export class Timeline extends Drawable {
             .filter((trackId) => !this.editor.tracks.find((t) => t.id === trackId));
         removedTracks.forEach((t) => {
             const view = this.renderTree.tracks.get(t)!;
-            const i = this.graphics.getChildIndex(view.graphics);
-            this.graphics.removeChildAt(i);
+            const i = this.renderTree.trackContainer.getChildIndex(view.graphics);
+            this.renderTree.trackContainer.removeChildAt(i);
+            this.removeChild(view);
             this.renderTree.tracks.delete(t);
             view.destroy();
         });
