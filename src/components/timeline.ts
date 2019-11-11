@@ -3,7 +3,8 @@ import { Editor } from "../Editor";
 import { Drawable, RenderProperty } from "@/framework";
 
 import { Header } from "./header";
-import { Track } from "./track";
+import { TrackView } from "./track";
+import colors from "@/colors";
 
 export class Timeline extends Drawable {
 
@@ -13,7 +14,7 @@ export class Timeline extends Drawable {
     renderTree = {
         header: new Header(this.app),
         trackContainer: new Container(),
-        tracks: new Map<string, Track>()
+        tracks: new Map<string, TrackView>()
     };
 
     public setup() {
@@ -23,7 +24,11 @@ export class Timeline extends Drawable {
     }
 
     public render() {
-        console.log("Rendering");
+
+        this.graphics
+            .beginFill(colors.timeline)
+                .drawRect(0, 0, this.app.screen.width, this.app.screen.height)
+            .endFill();
 
         this.renderTree.header.tick();
 
@@ -32,7 +37,7 @@ export class Timeline extends Drawable {
         this.editor.tracks.forEach((track) => {
             let trackView = this.renderTree.tracks.get(track.id);
             if (!trackView) {
-                trackView = new Track(this.app);
+                trackView = new TrackView(this.app);
                 trackView.track = track;
                 trackView.headerWidth = 200;
                 trackView.setup();

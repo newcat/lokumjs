@@ -1,22 +1,42 @@
-import { Component, Vue, Prop, Inject } from "vue-property-decorator";
 import { PositionCalculator } from "../PositionCalculator";
-import { IItem, ItemArea, ITrack } from "../types";
-import { Editor } from "../Editor";
-import { CreateElement } from "vue";
-import { Graphics } from "pixi.js";
+import { Item, Track } from "@/model";
 import colors from "@/colors";
+import { Drawable, Inject, RenderProperty } from "@/framework";
 
+export class ItemView extends Drawable {
+
+    @Inject("positionCalculator")
+    positionCalculator!: PositionCalculator;
+
+    @RenderProperty
+    item!: Item;
+
+    @RenderProperty
+    track!: Track;
+
+    public render() {
+        const x = this.positionCalculator.getX(this.item.start);
+        const width = this.positionCalculator.getX(this.item.end) - x;
+        this.graphics
+            .beginFill(colors.secondary)
+                .drawRoundedRect(x, 10, width, this.track.height - 20, 5)
+            .endFill();
+    }
+
+}
+
+/*
 @Component
-export default class TimelineItem extends Vue {
+export default class ItemView extends Vue {
 
     @Prop()
     positionCalculator!: PositionCalculator;
 
     @Prop()
-    item!: IItem;
+    item!: Item;
 
     @Prop()
-    track!: ITrack;
+    track!: Track;
 
     @Prop()
     y!: number;
@@ -77,3 +97,4 @@ export default class TimelineItem extends Vue {
     }
 
 }
+*/

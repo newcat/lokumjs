@@ -1,9 +1,9 @@
 import { Drawable, RenderProperty } from "@/framework";
 import TrackHeader from "./trackHeader";
-import { ITrack } from "@/types";
+import { Track } from "@/model";
 import colors from "@/colors";
 
-export class Track extends Drawable {
+export class TrackView extends Drawable {
 
     @RenderProperty
     public y!: number;
@@ -12,7 +12,7 @@ export class Track extends Drawable {
     public headerWidth!: number;
 
     @RenderProperty
-    public track!: ITrack;
+    public track!: Track;
 
     private header = new TrackHeader(this.app);
 

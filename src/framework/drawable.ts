@@ -1,6 +1,22 @@
 import { Graphics, Application } from "pixi.js";
 import { observe, Observer } from "./renderProperty";
 
+const provided = new Map<string, any>();
+
+export function provide(key: string, value: any) {
+    provided.set(key, value);
+}
+
+export function Inject(key: string) {
+    return (target: any, property: string) => {
+        const value = provided.get(key);
+        if (!value) {
+            throw new Error("Unknown key: " + key);
+        }
+        target[property] = value;
+    };
+}
+
 export abstract class Drawable {
 
     public graphics: Graphics = new Graphics();

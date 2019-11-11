@@ -1,11 +1,11 @@
-import { ITrack } from "../types";
+import { Track } from "@/model";
 import { Drawable, RenderProperty } from "@/framework";
 import colors from "@/colors";
 
 export default class TrackHeader extends Drawable {
 
     @RenderProperty
-    public track!: ITrack;
+    public track!: Track;
 
     @RenderProperty
     public width: number = 200;
