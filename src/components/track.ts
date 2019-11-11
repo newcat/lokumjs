@@ -1,12 +1,10 @@
-import { Drawable, RenderProperty } from "@/framework";
+import { Drawable, RenderProperty, ArrayRenderer } from "@/framework";
 import TrackHeader from "./trackHeader";
-import { Track } from "@/model";
+import { Track, Item } from "@/model";
 import colors from "@/colors";
+import { ItemView } from "./item";
 
 export class TrackView extends Drawable {
-
-    @RenderProperty
-    public y!: number;
 
     @RenderProperty
     public headerWidth!: number;
@@ -14,13 +12,24 @@ export class TrackView extends Drawable {
     @RenderProperty
     public track!: Track;
 
-    private header = new TrackHeader(this.app);
+    private header = new TrackHeader(this.root);
+    private items = this.createView<ArrayRenderer<Item, ItemView>>(ArrayRenderer);
 
     public setup() {
         this.header.track = this.track;
-        this.graphics.addChild(this.header.graphics);
         this.addChild(this.header);
-        this.addDependency(this.app.screen, "width");
+        this.addChild(this.items);
+        this.addDependency(this.root.app.screen, "width");
+
+        this.items.bind(this.track.items,
+            (newItem) => {
+                const itemView = new ItemView(this.root);
+                itemView.track = this.track;
+                itemView.item = newItem;
+                itemView.setup();
+                return itemView;
+            }
+        );
     }
 
     protected render(): void {
@@ -29,13 +38,15 @@ export class TrackView extends Drawable {
         this.graphics
             .lineStyle(1, colors.markerLine)
             .moveTo(0, 0)
-            .lineTo(this.app.screen.width, 0)
+            .lineTo(this.root.app.screen.width, 0)
             .moveTo(0, this.track.height)
-            .lineTo(this.app.screen.width, this.track.height);
+            .lineTo(this.root.app.screen.width, this.track.height);
 
-        this.graphics.y = this.y;
         this.header.width = this.headerWidth;
         this.header.tick();
+
+        this.items.graphics.x = this.headerWidth;
+        this.items.tick();
     }
 
 }

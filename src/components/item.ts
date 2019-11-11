@@ -1,12 +1,8 @@
-import { PositionCalculator } from "../PositionCalculator";
 import { Item, Track } from "@/model";
 import colors from "@/colors";
-import { Drawable, Inject, RenderProperty } from "@/framework";
+import { Drawable, RenderProperty } from "@/framework";
 
 export class ItemView extends Drawable {
-
-    @Inject("positionCalculator")
-    positionCalculator!: PositionCalculator;
 
     @RenderProperty
     item!: Item;
@@ -14,13 +10,35 @@ export class ItemView extends Drawable {
     @RenderProperty
     track!: Track;
 
+    public setup() {
+        this.graphics.interactive = true;
+        this.graphics.buttonMode = true;
+        (this.graphics as any).on("pointerdown", () => {
+            this.item.selected = !this.item.selected;
+            this.needsRender = true;
+        });
+    }
+
     public render() {
-        const x = this.positionCalculator.getX(this.item.start);
-        const width = this.positionCalculator.getX(this.item.end) - x;
-        this.graphics
-            .beginFill(colors.secondary)
-                .drawRoundedRect(x, 10, width, this.track.height - 20, 5)
-            .endFill();
+        const x = this.root.positionCalculator.getX(this.item.start);
+        const width = this.root.positionCalculator.getX(this.item.end) - x;
+        if (this.item.selected) {
+            this.graphics
+                .lineStyle(2, colors.accent)
+                .beginFill(colors.secondary)
+                    .drawRoundedRect(x, 10, width, this.track.height - 20, 5)
+                .endFill()
+                .beginFill(colors.accent)
+                    .drawRoundedRect(x - 5, this.track.height / 2 - 20, 5, 40, 3)
+                    .drawRoundedRect(x + width, this.track.height / 2 - 20, 5, 40, 3)
+                .endFill()
+                .lineStyle();
+        } else {
+            this.graphics
+                .beginFill(colors.secondary)
+                    .drawRoundedRect(x, 10, width, this.track.height - 20, 5)
+                .endFill();
+        }
     }
 
 }

@@ -1,66 +1,65 @@
 import { Container } from "pixi.js";
 import { Editor } from "../Editor";
-import { Drawable, RenderProperty } from "@/framework";
+import { Drawable, RenderProperty, ArrayRenderer } from "@/framework";
 
 import { Header } from "./header";
 import { TrackView } from "./track";
 import colors from "@/colors";
+import { Track } from "@/model";
 
 export class Timeline extends Drawable {
 
     @RenderProperty
     editor!: Editor;
 
-    renderTree = {
-        header: new Header(this.app),
-        trackContainer: new Container(),
-        tracks: new Map<string, TrackView>()
-    };
+    private header = this.createView(Header);
+    private tracks = this.createView<ArrayRenderer<Track, TrackView>>(ArrayRenderer);
+    private trackContainer = new Container();
+    private trackOffsets: number[] = [];
 
     public setup() {
-        this.addChild(this.renderTree.header);
-        this.graphics.addChild(this.renderTree.header.graphics);
-        this.graphics.addChild(this.renderTree.trackContainer);
+        this.header.setup();
+        this.addChild(this.header);
+        this.addChild(this.tracks);
+        this.graphics.addChild(this.trackContainer);
+        this.trackContainer.addChild(this.tracks.graphics);
+
+        this.tracks.bind(this.editor.tracks,
+            (newTrack) => {
+                const trackView = this.createView(TrackView);
+                trackView.track = newTrack;
+                trackView.headerWidth = 200;
+                trackView.setup();
+                return trackView;
+            },
+            (trackView, t, i) => {
+                trackView.graphics.y = this.trackOffsets[i];
+            }
+        );
     }
 
     public render() {
 
         this.graphics
             .beginFill(colors.timeline)
-                .drawRect(0, 0, this.app.screen.width, this.app.screen.height)
+                .drawRect(0, 0, this.root.app.screen.width, this.root.app.screen.height)
             .endFill();
 
-        this.renderTree.header.tick();
+        this.header.tick();
 
-        this.renderTree.trackContainer.y = this.renderTree.header.headerHeight;
-        let y = 0;
-        this.editor.tracks.forEach((track) => {
-            let trackView = this.renderTree.tracks.get(track.id);
-            if (!trackView) {
-                trackView = new TrackView(this.app);
-                trackView.track = track;
-                trackView.headerWidth = 200;
-                trackView.setup();
-                this.renderTree.tracks.set(track.id, trackView);
-                this.renderTree.trackContainer.addChild(trackView.graphics);
-                this.addChild(trackView);
-            }
-            trackView.y = y;
-            trackView.tick();
-            y += track.height;
+        this.trackContainer.y = this.header.headerHeight;
+        this.trackOffsets = this.getTrackOffsets(this.editor.tracks);
+        this.tracks.tick();
+
+    }
+
+    private getTrackOffsets(tracks: Track[]) {
+        const offsets = [0];
+        let prev = 0;
+        tracks.forEach((t) => {
+            offsets.push(prev += t.height);
         });
-
-        const removedTracks = Array.from(this.renderTree.tracks.keys())
-            .filter((trackId) => !this.editor.tracks.find((t) => t.id === trackId));
-        removedTracks.forEach((t) => {
-            const view = this.renderTree.tracks.get(t)!;
-            const i = this.renderTree.trackContainer.getChildIndex(view.graphics);
-            this.renderTree.trackContainer.removeChildAt(i);
-            this.removeChild(view);
-            this.renderTree.tracks.delete(t);
-            view.destroy();
-        });
-
+        return offsets;
     }
 
 }

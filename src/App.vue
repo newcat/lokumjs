@@ -8,10 +8,10 @@
 import { Component, Vue } from "vue-property-decorator";
 import { Timeline } from "./components/timeline";
 import { Editor } from "./Editor";
-import TestComponent from "./components/TestComponent.vue";
 
 import * as PIXI from "pixi.js";
 import { Track, Item } from "./model";
+import { PositionCalculator } from "./PositionCalculator";
 
 @Component
 export default class App extends Vue {
@@ -28,18 +28,23 @@ export default class App extends Vue {
         track1.items.push(new Item(15, 30, { text: "Item 2" }));
         track2.items.push(new Item(8, 25, { text: "Item 3" }));
         this.editor.tracks.push(track1, track2, track3, track4, track5);
-        this.editor.itemComponent = TestComponent;
 
         const app = new PIXI.Application({
             view: this.$refs.canvas as HTMLCanvasElement,
             resizeTo: this.$refs.wrapper as HTMLElement,
             antialias: true
         });
-        const t = new Timeline(app);
+
+        const positionCalculator = new PositionCalculator(10);
+        const root = { app, positionCalculator };
+
+        const t = new Timeline(root);
         t.editor = this.editor;
         t.setup();
         app.stage.addChild(t.graphics);
         app.ticker.add(() => t.tick());
+
+        (window as any).$data = t;
 
     }
 
