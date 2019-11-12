@@ -22,10 +22,7 @@ export class ArrayRenderer<T, V extends Drawable> extends Drawable {
 
     public render() {
 
-        console.log(this.array.map((x: any) => x.id));
-
         this.array.forEach((item, index, array) => {
-            console.log((item as any).id);
             const id = this.getId(item);
             let view = this.views.get(id);
             if (!view) {
@@ -36,8 +33,6 @@ export class ArrayRenderer<T, V extends Drawable> extends Drawable {
             if (this.onRender) { this.onRender(view, item, index, array); }
             view.tick();
         });
-
-        console.log("Completed foreach");
 
         const removedTracks = Array.from(this.views.keys())
             .filter((id) => !this.array.find((x) => id === this.getId(x)));

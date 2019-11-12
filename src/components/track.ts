@@ -17,6 +17,7 @@ export class TrackView extends Drawable {
 
     public setup() {
         this.header.track = this.track;
+        this.header.setup();
         this.addChild(this.header);
         this.addChild(this.items);
         this.addDependency(this.root.app.screen, "width");

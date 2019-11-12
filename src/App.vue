@@ -12,6 +12,7 @@ import { Editor } from "./Editor";
 import * as PIXI from "pixi.js";
 import { Track, Item } from "./model";
 import { PositionCalculator } from "./PositionCalculator";
+import { EventManager } from "./framework";
 
 @Component
 export default class App extends Vue {
@@ -36,7 +37,8 @@ export default class App extends Vue {
         });
 
         const positionCalculator = new PositionCalculator(10);
-        const root = { app, positionCalculator };
+        const eventManager = new EventManager(app.renderer.plugins.interaction);
+        const root = { app, positionCalculator, eventManager };
 
         const t = new Timeline(root);
         t.editor = this.editor;

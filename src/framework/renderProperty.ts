@@ -77,7 +77,7 @@ export function observe(obj: { [k: string]: any }, key: string, deep = false): O
     }
 }
 
-export function RenderProperty<T extends { needsRender: boolean; }>(target: T, key: string) {
-    const observer = observe(target, key);
-    observer.registerWatcher(target, function(this: T) { this.needsRender = true; });
+export function RenderProperty<T extends { _reactiveProps: string[]; }>(target: T, propertyKey: string) {
+    if (!target._reactiveProps) { target._reactiveProps = []; }
+    target._reactiveProps.push(propertyKey);
 }

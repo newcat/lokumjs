@@ -1,23 +1,38 @@
 import { Graphics, Application } from "pixi.js";
 import { observe, Observer } from "./renderProperty";
 import { PositionCalculator } from "@/PositionCalculator";
+import { EventManager } from "./eventManager";
 
 export interface IRoot {
     app: Application;
     positionCalculator: PositionCalculator;
+    eventManager: EventManager;
 }
 
-type ViewConstructor<V extends Drawable> = new (root: IRoot) => V;
+type Props = Record<string, any>;
+type ViewConstructor<V extends Drawable> = new (root: IRoot, propValues?: Props) => V;
 
 export abstract class Drawable {
 
     public graphics: Graphics = new Graphics();
     public needsRender: boolean = true;
+    // public props: Props = {};
+    public _reactiveProps: string[] = [];
+
+    protected root: IRoot;
 
     private children: Drawable[] = [];
     private observers: Observer[] = [];
 
-    public constructor(protected root: IRoot) { }
+    public constructor(root: IRoot, propValues?: Props) {
+        this.root = root;
+        this._reactiveProps.forEach((p) => {
+            this.addDependency(this, p, true);
+        });
+    }
+
+    // tslint:disable-next-line: no-empty
+    public setup() { }
 
     public tick() {
         if (this.doesNeedRender()) {
@@ -52,8 +67,9 @@ export abstract class Drawable {
         this.observers.push(observer);
     }
 
-    protected createView<V extends Drawable>(type: ViewConstructor<V>): V {
-        const view = new type(this.root);
+    protected createView<V extends Drawable>(type: ViewConstructor<V>, propValues?: Props): V {
+        const view = new type(this.root, propValues);
+        // view.setup();
         return view;
     }
 

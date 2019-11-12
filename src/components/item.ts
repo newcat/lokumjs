@@ -13,10 +13,7 @@ export class ItemView extends Drawable {
     public setup() {
         this.graphics.interactive = true;
         this.graphics.buttonMode = true;
-        (this.graphics as any).on("pointerdown", () => {
-            this.item.selected = !this.item.selected;
-            this.needsRender = true;
-        });
+        this.root.eventManager.events.pointerdown.subscribe(this.graphics, this.onClick.bind(this));
     }
 
     public render() {
@@ -39,6 +36,11 @@ export class ItemView extends Drawable {
                     .drawRoundedRect(x, 10, width, this.track.height - 20, 5)
                 .endFill();
         }
+    }
+
+    private onClick() {
+        this.item.selected = !this.item.selected;
+        this.needsRender = true;
     }
 
 }
