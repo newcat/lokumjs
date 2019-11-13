@@ -1,12 +1,12 @@
+import { Application } from "pixi.js";
+
 export class PositionCalculator {
 
-    public visibleWidth = 0;
     public offset = 0;
     public unitWidth = 10;
+    public targetMarkersPer100Pixels = 2;
 
-    constructor(unitWidth: number) {
-        this.unitWidth = unitWidth;
-    }
+    constructor(private app: Application) { }
 
     public getX(units: number) {
         return units * this.unitWidth + this.offset;
@@ -22,7 +22,7 @@ export class PositionCalculator {
         let x = 0;
         do {
             x = this.getX(n);
-            if (x >= 0 && x < this.visibleWidth) {
+            if (x >= 0 && x < this.app.screen.width) {
                 if (n % majorMultiplier === 0) {
                     markers.push({ type: "major", unit: n, position: x });
                 } else {
@@ -30,7 +30,7 @@ export class PositionCalculator {
                 }
             }
             n += nthUnit;
-        } while (x < this.visibleWidth);
+        } while (x < this.app.screen.width);
         return markers;
     }
 

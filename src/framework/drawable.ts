@@ -29,6 +29,11 @@ export abstract class Drawable {
         this._reactiveProps.forEach((p) => {
             this.addDependency(this, p, true);
         });
+        if (propValues) {
+            Object.keys(propValues).forEach((k) => {
+                (this as any)[k] = propValues[k];
+            });
+        }
     }
 
     // tslint:disable-next-line: no-empty

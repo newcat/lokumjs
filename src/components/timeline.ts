@@ -10,15 +10,17 @@ import { Track } from "@/model";
 export class Timeline extends Drawable {
 
     @RenderProperty
-    editor!: Editor;
+    public editor!: Editor;
 
-    private header = this.createView(Header);
+    @RenderProperty
+    public trackHeaderWidth = 200;
+
+    private header = this.createView(Header, { trackHeaderWidth: this.trackHeaderWidth });
     private tracks = this.createView<ArrayRenderer<Track, TrackView>>(ArrayRenderer);
     private trackContainer = new Container();
     private trackOffsets: number[] = [];
 
     public setup() {
-        this.header.setup();
         this.addChild(this.header);
         this.addChild(this.tracks);
         this.graphics.addChild(this.trackContainer);
@@ -28,7 +30,7 @@ export class Timeline extends Drawable {
             (newTrack) => {
                 const trackView = this.createView(TrackView);
                 trackView.track = newTrack;
-                trackView.headerWidth = 200;
+                trackView.headerWidth = this.trackHeaderWidth;
                 trackView.setup();
                 return trackView;
             },

@@ -36,7 +36,7 @@ export default class App extends Vue {
             antialias: true
         });
 
-        const positionCalculator = new PositionCalculator(10);
+        const positionCalculator = new PositionCalculator(app);
         const eventManager = new EventManager(app.renderer.plugins.interaction);
         const root = { app, positionCalculator, eventManager };
 
