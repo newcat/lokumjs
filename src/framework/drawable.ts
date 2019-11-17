@@ -1,5 +1,5 @@
 import { Graphics, Application } from "pixi.js";
-import { observe, Observer } from "./renderProperty";
+import { Observer } from "./observer";
 import { PositionCalculator } from "@/PositionCalculator";
 import { EventManager } from "./eventManager";
 
@@ -68,8 +68,8 @@ export abstract class Drawable {
     protected abstract render(): void;
 
     protected addDependency(object: { [k: string]: any }, key: string, deep = false) {
-        const observer = observe(object, key, deep);
-        observer.registerWatcher(this, () => { console.log(object, key, object[key]); this.needsRender = true; });
+        const observer = Observer.observe(object, key, deep);
+        observer.registerWatcher(this, () => { this.needsRender = true; });
         this.observers.push(observer);
     }
 

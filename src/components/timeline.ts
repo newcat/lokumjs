@@ -93,8 +93,10 @@ export class Timeline extends Drawable {
             } else {
                 // TODO: unselect all items
                 console.log(this.getAllItems());
+                console.log(item);
                 this.getAllItems().forEach((i) => { i.selected = false; });
-                item.selected = true;
+                console.log(item.selected);
+                item.selected = !item.selected;
             }
         }
         this.dragArea = area;
