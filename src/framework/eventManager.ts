@@ -1,10 +1,13 @@
-import { Event } from "./event";
+import { GraphicsEvent, StandardEvent } from "./events";
 import { interaction } from "pixi.js";
+import { Item } from "@/model";
+import { ItemArea } from "@/types";
 
 export class EventManager {
 
     public events = {
-        pointerdown: new Event()
+        pointerdown: new GraphicsEvent(),
+        itemClicked: new StandardEvent<{ item: Item, area: ItemArea }>()
     };
 
     public constructor(intMng: interaction.InteractionManager) {

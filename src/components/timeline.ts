@@ -5,7 +5,8 @@ import { Drawable, RenderProperty, ArrayRenderer } from "@/framework";
 import { Header } from "./header";
 import { TrackView } from "./track";
 import colors from "@/colors";
-import { Track } from "@/model";
+import { Track, Item } from "@/model";
+import { ItemArea } from "@/types";
 
 export class Timeline extends Drawable {
 
@@ -20,7 +21,20 @@ export class Timeline extends Drawable {
     private trackContainer = new Container();
     private trackOffsets: number[] = [];
 
+    private hoveredTrack: Track|null = null;
+    private isDragging = false;
+    private dragArea: ItemArea|"" = "";
+    private dragItem: Item|null = null;
+    private dragStartPosition = 0;
+    private dragStartTrack: Track|null = null;
+    private dragStartStates: Item[] = [];
+
     public setup() {
+
+        this.root.eventManager.events.itemClicked.subscribe(this, (data) => {
+            this.onItemMousedown(data!.item, data!.area);
+        });
+
         this.addChild(this.header);
         this.addChild(this.tracks);
         this.graphics.addChild(this.trackContainer);
@@ -62,6 +76,34 @@ export class Timeline extends Drawable {
             offsets.push(prev += t.height);
         });
         return offsets;
+    }
+
+    private getAllItems() {
+        return this.editor.tracks.flatMap((t) => t.items);
+    }
+
+    private onItemMousedown(item: Item, area: ItemArea) {
+        if (area === "center") {
+            if (false /* TODO: Check if CTRL is pressed */) {
+                if (item.selected) {
+                    item.selected = false;
+                } else {
+                    item.selected = true;
+                }
+            } else {
+                // TODO: unselect all items
+                console.log(this.getAllItems());
+                this.getAllItems().forEach((i) => { i.selected = false; });
+                item.selected = true;
+            }
+        }
+        this.dragArea = area;
+        this.dragItem = item;
+        this.dragStartPosition = this.root.app.renderer.plugins.interaction.mouse.global.x;
+        this.dragStartTrack = this.hoveredTrack;
+        this.isDragging = true;
+        /*this.dragStartStates = this.selected.map((id) => JSON.parse(JSON.stringify(
+            this.editor.items.find((i) => i.id === id))));*/
     }
 
 }

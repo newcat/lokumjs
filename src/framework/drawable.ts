@@ -14,10 +14,11 @@ type ViewConstructor<V extends Drawable> = new (root: IRoot, propValues?: Props)
 
 export abstract class Drawable {
 
+    public static _reactiveProps: string[] = [];
+
     public graphics: Graphics = new Graphics();
     public needsRender: boolean = true;
     // public props: Props = {};
-    public _reactiveProps: string[] = [];
 
     protected root: IRoot;
 
@@ -26,7 +27,7 @@ export abstract class Drawable {
 
     public constructor(root: IRoot, propValues?: Props) {
         this.root = root;
-        this._reactiveProps.forEach((p) => {
+        (this as any).__proto__._reactiveProps?.forEach((p: string) => {
             this.addDependency(this, p, true);
         });
         if (propValues) {
@@ -68,7 +69,7 @@ export abstract class Drawable {
 
     protected addDependency(object: { [k: string]: any }, key: string, deep = false) {
         const observer = observe(object, key, deep);
-        observer.registerWatcher(this, () => { this.needsRender = true; });
+        observer.registerWatcher(this, () => { console.log(object, key, object[key]); this.needsRender = true; });
         this.observers.push(observer);
     }
 

@@ -1,8 +1,10 @@
-export class Event {
+import { IEvent, ConsumerFunction } from "./event";
+
+export class GraphicsEvent implements IEvent<any> {
 
     private subscribers = new Map<any, (data?: any) => void>();
 
-    public subscribe(graphicsInstance: any, callback: (data: any) => void) {
+    public subscribe(graphicsInstance: any, callback: ConsumerFunction) {
         this.subscribers.set(graphicsInstance, callback);
     }
 

@@ -4,7 +4,7 @@ import { Drawable, RenderProperty } from "@/framework";
 
 export class ItemView extends Drawable {
 
-    @RenderProperty
+    // @RenderProperty
     item!: Item;
 
     @RenderProperty
@@ -14,6 +14,7 @@ export class ItemView extends Drawable {
         this.graphics.interactive = true;
         this.graphics.buttonMode = true;
         this.root.eventManager.events.pointerdown.subscribe(this.graphics, this.onClick.bind(this));
+        this.addDependency(this.item, "selected"); //TODO: Why does @RenderProperty not work here?
     }
 
     public render() {
@@ -39,8 +40,7 @@ export class ItemView extends Drawable {
     }
 
     private onClick() {
-        this.item.selected = !this.item.selected;
-        this.needsRender = true;
+        this.root.eventManager.events.itemClicked.emit({ item: this.item, area: "center" });
     }
 
 }

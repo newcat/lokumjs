@@ -24,7 +24,7 @@ export class Header extends Drawable {
                 .drawRect(0, 0, this.root.app.screen.width, this.headerHeight)
             .endFill();
 
-        const markers = this.root.positionCalculator.getMarkers(5, 3);
+        const markers = this.root.positionCalculator.markers;
 
         if (this.markerContainer) {
             this.graphics.removeChild(this.markerContainer);

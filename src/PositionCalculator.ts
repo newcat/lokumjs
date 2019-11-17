@@ -4,7 +4,27 @@ export class PositionCalculator {
 
     public offset = 0;
     public unitWidth = 10;
-    public targetMarkersPer100Pixels = 2;
+
+    public markerSpace = 5;
+    public markerMajorMultiplier = 3;
+
+    public get markers() {
+        const markers = [];
+        let n = 0;
+        let x = 0;
+        do {
+            x = this.getX(n);
+            if (x >= 0 && x < this.app.screen.width) {
+                if (n % this.markerMajorMultiplier === 0) {
+                    markers.push({ type: "major", unit: n, position: x });
+                } else {
+                    markers.push({ type: "minor", unit: n, position: x });
+                }
+            }
+            n += this.markerSpace;
+        } while (x < this.app.screen.width);
+        return markers;
+    }
 
     constructor(private app: Application) { }
 
@@ -14,24 +34,6 @@ export class PositionCalculator {
 
     public getUnit(x: number) {
         return Math.floor((x - this.offset) / this.unitWidth);
-    }
-
-    public getMarkers(nthUnit: number, majorMultiplier = 1) {
-        const markers = [];
-        let n = 0;
-        let x = 0;
-        do {
-            x = this.getX(n);
-            if (x >= 0 && x < this.app.screen.width) {
-                if (n % majorMultiplier === 0) {
-                    markers.push({ type: "major", unit: n, position: x });
-                } else {
-                    markers.push({ type: "minor", unit: n, position: x });
-                }
-            }
-            n += nthUnit;
-        } while (x < this.app.screen.width);
-        return markers;
     }
 
 }

@@ -24,7 +24,13 @@ export class Observer {
             onChange.unsubscribe(this._value);
         }
         if (this.deep && typeof(newVal) === "object") {
-            newVal = onChange(newVal, () => { this.invokeWatchers(); });
+            newVal = onChange(newVal, (path, value, prevValue) => {
+                if (value !== prevValue) {
+                    console.log("VAL", value);
+                    console.log("PVL", prevValue);
+                    this.invokeWatchers();
+                }
+            });
         }
         this._value = newVal;
         this.invokeWatchers();
@@ -53,10 +59,10 @@ export function observe(obj: { [k: string]: any }, key: string, deep = false): O
     const oldValue = obj[key];
     if (delete obj[key]) {
 
-        let observer: Observer = obj["_" + key];
+        let observer: Observer|undefined = obj["_" + key];
 
         // Might already be an observer, if not, create one
-        if (!observer || observer.isObservedSymbol === isObservedSymbol) {
+        if (!observer || observer.isObservedSymbol !== isObservedSymbol) {
             observer = new Observer(deep);
             observer.setValue(oldValue);
             obj["_" + key] = observer;
@@ -64,8 +70,8 @@ export function observe(obj: { [k: string]: any }, key: string, deep = false): O
 
         // Create new property with getter and setter
         Object.defineProperty(obj, key, {
-            get: () => observer.getValue(),
-            set: (v) => observer.setValue(v),
+            get: () => observer!.getValue(),
+            set: (v) => observer!.setValue(v),
             enumerable: true,
             configurable: true
         });
@@ -77,7 +83,7 @@ export function observe(obj: { [k: string]: any }, key: string, deep = false): O
     }
 }
 
-export function RenderProperty<T extends { _reactiveProps: string[]; }>(target: T, propertyKey: string) {
+export function RenderProperty(target: any, propertyKey: string) {
     if (!target._reactiveProps) { target._reactiveProps = []; }
     target._reactiveProps.push(propertyKey);
 }

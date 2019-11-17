@@ -36,18 +36,29 @@ export class TrackView extends Drawable {
     protected render(): void {
 
         // top and bottom borders
-        this.graphics
-            .lineStyle(1, colors.markerLine)
-            .moveTo(0, 0)
-            .lineTo(this.root.app.screen.width, 0)
-            .moveTo(0, this.track.height)
-            .lineTo(this.root.app.screen.width, this.track.height);
+        this.drawLine(colors.markerLine, 0, 0, this.root.app.screen.width, 0);
+        this.drawLine(colors.markerLine, 0, this.track.height, this.root.app.screen.width, this.track.height);
+
+        // markers
+        this.root.positionCalculator.markers
+            .filter((m) => m.type === "major")
+            .forEach((m) => {
+                this.drawLine(colors.markerLine, m.position, 0, m.position, this.track.height);
+            });
 
         this.header.width = this.headerWidth;
         this.header.tick();
 
         this.items.graphics.x = this.headerWidth;
         this.items.tick();
+
+    }
+
+    private drawLine(color: number, x1: number, y1: number, x2: number, y2: number) {
+        this.graphics
+            .lineStyle(1, color)
+            .moveTo(x1, y1)
+            .lineTo(x2, y2);
     }
 
 }
