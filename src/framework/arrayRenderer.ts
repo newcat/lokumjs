@@ -1,6 +1,6 @@
 import { Drawable } from "./drawable";
 
-export class ArrayRenderer<T, V extends Drawable> extends Drawable {
+export class ArrayRenderer<T, V extends Drawable<any>> extends Drawable<{}> {
 
     private views = new Map<any, V>();
     private array!: T[];

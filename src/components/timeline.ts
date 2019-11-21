@@ -1,23 +1,22 @@
 import { Container } from "pixi.js";
 import { Editor } from "../Editor";
-import { Drawable, RenderProperty, ArrayRenderer } from "@/framework";
+import { Drawable, ArrayRenderer } from "@/framework";
 
-import { Header } from "./header";
+import { HeaderView } from "./header";
 import { TrackView } from "./track";
 import colors from "@/colors";
 import { Track, Item } from "@/model";
 import { ItemArea } from "@/types";
 
-export class Timeline extends Drawable {
+interface ITimelineViewProps {
+    editor: Editor;
+    trackHeaderWidth: number;
+}
 
-    @RenderProperty
-    public editor!: Editor;
+export class TimelineView extends Drawable<ITimelineViewProps> {
 
-    @RenderProperty
-    public trackHeaderWidth = 200;
-
-    private header = this.createView(Header, { trackHeaderWidth: this.trackHeaderWidth });
-    private tracks = this.createView<ArrayRenderer<Track, TrackView>>(ArrayRenderer);
+    private header!: HeaderView;
+    private tracks!: ArrayRenderer<Track, TrackView>;
     private trackContainer = new Container();
     private trackOffsets: number[] = [];
 
@@ -31,6 +30,11 @@ export class Timeline extends Drawable {
 
     public setup() {
 
+        this.setDefaultPropValues({ trackHeaderWidth: 200 });
+
+        this.header = this.createView(HeaderView, { trackHeaderWidth: this.props.trackHeaderWidth });
+        this.tracks = this.createView<ArrayRenderer<Track, TrackView>>(ArrayRenderer);
+
         this.root.eventManager.events.itemClicked.subscribe(this, (data) => {
             this.onItemMousedown(data!.item, data!.area);
         });
@@ -40,17 +44,9 @@ export class Timeline extends Drawable {
         this.graphics.addChild(this.trackContainer);
         this.trackContainer.addChild(this.tracks.graphics);
 
-        this.tracks.bind(this.editor.tracks,
-            (newTrack) => {
-                const trackView = this.createView(TrackView);
-                trackView.track = newTrack;
-                trackView.headerWidth = this.trackHeaderWidth;
-                trackView.setup();
-                return trackView;
-            },
-            (trackView, t, i) => {
-                trackView.graphics.y = this.trackOffsets[i];
-            }
+        this.tracks.bind(this.props.editor.tracks,
+            (newTrack) => this.createView(TrackView, { track: newTrack, headerWidth: this.props.trackHeaderWidth }),
+            (trackView, t, i) => { trackView.graphics.y = this.trackOffsets[i]; }
         );
     }
 
@@ -63,8 +59,8 @@ export class Timeline extends Drawable {
 
         this.header.tick();
 
-        this.trackContainer.y = this.header.headerHeight;
-        this.trackOffsets = this.getTrackOffsets(this.editor.tracks);
+        this.trackContainer.y = this.header.props.headerHeight;
+        this.trackOffsets = this.getTrackOffsets(this.props.editor.tracks);
         this.tracks.tick();
 
     }
@@ -79,7 +75,7 @@ export class Timeline extends Drawable {
     }
 
     private getAllItems() {
-        return this.editor.tracks.flatMap((t) => t.items);
+        return this.props.editor.tracks.flatMap((t) => t.items);
     }
 
     private onItemMousedown(item: Item, area: ItemArea) {
@@ -91,12 +87,8 @@ export class Timeline extends Drawable {
                     item.selected = true;
                 }
             } else {
-                // TODO: unselect all items
-                console.log(this.getAllItems());
-                console.log(item);
                 this.getAllItems().forEach((i) => { i.selected = false; });
-                console.log(item.selected);
-                item.selected = !item.selected;
+                item.selected = true;
             }
         }
         this.dragArea = area;

@@ -6,7 +6,7 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import { Timeline } from "./components/timeline";
+import { TimelineView } from "./components/timeline";
 import { Editor } from "./Editor";
 
 import * as PIXI from "pixi.js";
@@ -40,8 +40,7 @@ export default class App extends Vue {
         const eventManager = new EventManager(app.renderer.plugins.interaction);
         const root = { app, positionCalculator, eventManager };
 
-        const t = new Timeline(root);
-        t.editor = this.editor;
+        const t = new TimelineView(root, { editor: this.editor });
         t.setup();
         app.stage.addChild(t.graphics);
         app.ticker.add(() => t.tick());

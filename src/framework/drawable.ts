@@ -9,30 +9,27 @@ export interface IRoot {
     eventManager: EventManager;
 }
 
-type Props = Record<string, any>;
-type ViewConstructor<V extends Drawable> = new (root: IRoot, propValues?: Props) => V;
+type PropsType = Record<string, any>;
+type ViewConstructor<P, V extends Drawable<P>> = new (root: IRoot, propValues?: Partial<P>) => V;
 
-export abstract class Drawable {
-
-    public static _reactiveProps: string[] = [];
+export abstract class Drawable<Props extends PropsType> {
 
     public graphics: Graphics = new Graphics();
     public needsRender: boolean = true;
-    // public props: Props = {};
+
+    public props: Props = {} as any;
 
     protected root: IRoot;
 
-    private children: Drawable[] = [];
+    private children: Array<Drawable<any>> = [];
     private observers: Observer[] = [];
 
-    public constructor(root: IRoot, propValues?: Props) {
+    public constructor(root: IRoot, props?: Partial<Props>) {
         this.root = root;
-        (this as any).__proto__._reactiveProps?.forEach((p: string) => {
-            this.addDependency(this, p, true);
-        });
-        if (propValues) {
-            Object.keys(propValues).forEach((k) => {
-                (this as any)[k] = propValues[k];
+        this.addDependency(this, "props", undefined, true);
+        if (props) {
+            Object.keys(props).forEach((k) => {
+                (this.props as any)[k] = props[k];
             });
         }
     }
@@ -53,12 +50,12 @@ export abstract class Drawable {
         this.observers.forEach((o) => o.unregisterWatcher(this));
     }
 
-    public addChild(child: Drawable) {
+    public addChild(child: Drawable<any>) {
         this.children.push(child);
         this.graphics.addChild(child.graphics);
     }
 
-    public removeChild(child: Drawable) {
+    public removeChild(child: Drawable<any>) {
         let i = this.children.indexOf(child);
         if (i >= 0) { this.children.splice(i, 1); }
         i = this.graphics.getChildIndex(child.graphics);
@@ -67,16 +64,29 @@ export abstract class Drawable {
 
     protected abstract render(): void;
 
-    protected addDependency(object: { [k: string]: any }, key: string, deep = false) {
-        const observer = Observer.observe(object, key, deep);
-        observer.registerWatcher(this, () => { this.needsRender = true; });
-        this.observers.push(observer);
+    protected addDependency(object: { [k: string]: any }, key: string, path?: string, deep = false) {
+        const proxy = Observer.observe(object[key], deep);
+        (proxy._observer as Observer).registerWatcher(this, (changedPath) => {
+            if (!path || (path && path === changedPath)) {
+                this.needsRender = true;
+            }
+        });
+        this.observers.push(proxy._observer);
+        object[key] = proxy;
     }
 
-    protected createView<V extends Drawable>(type: ViewConstructor<V>, propValues?: Props): V {
+    protected createView<V extends Drawable<P>, P = any>(type: ViewConstructor<P, V>, propValues?: Partial<P>): V {
         const view = new type(this.root, propValues);
-        // view.setup();
+        view.setup();
         return view;
+    }
+
+    protected setDefaultPropValues(values: Partial<Props>) {
+        Object.keys(values).forEach((k) => {
+            if (this.props[k] === undefined) {
+                (this.props as any)[k] = values[k];
+            }
+        });
     }
 
     private doesNeedRender(): boolean {

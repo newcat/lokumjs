@@ -1,15 +1,18 @@
 import { Track } from "@/model";
-import { Drawable, RenderProperty } from "@/framework";
+import { Drawable } from "@/framework";
 import colors from "@/colors";
 import { TextStyle, Text } from "pixi.js";
 
-export default class TrackHeader extends Drawable {
+interface ITrackHeaderViewProps {
+    track: Track;
+    width: number;
+}
 
-    @RenderProperty
-    public track!: Track;
+export default class TrackHeaderView extends Drawable<ITrackHeaderViewProps> {
 
-    @RenderProperty
-    public width: number = 200;
+    protected defaultPropValues = {
+        width: 200
+    };
 
     private style = new TextStyle({
         fill: colors.text,
@@ -25,12 +28,12 @@ export default class TrackHeader extends Drawable {
     render() {
         this.graphics
             .beginFill(colors.header)
-                .drawRect(0, 0, this.width, this.track.height)
+                .drawRect(0, 0, this.props.width, this.props.track.height)
             .endFill();
-        this.text.text = this.track.name;
+        this.text.text = this.props.track.name;
         const textBounds = this.text.getBounds();
         this.text.x = 30;
-        this.text.y = (this.track.height - textBounds.height) / 2;
+        this.text.y = (this.props.track.height - textBounds.height) / 2;
     }
 
     public destroy() {
