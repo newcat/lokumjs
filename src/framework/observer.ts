@@ -13,17 +13,17 @@ export class Observer {
 
         if (!target._observer) {
 
+            target._observer = new Observer();
+
             Object.keys(target)
-                .filter((k) => k !== "_observer")
+                .filter((k) => k !== "_observer" && !k.startsWith("_$_"))
                 .forEach((k) => {
                 const childValue = (target as any)[k];
-                if (typeof(childValue) === "object") {
+                if (typeof(childValue) === "object" && !!childValue) {
                     const proxy = Observer.observe(childValue, deep);
                     (target as any)[k] = proxy;
                 }
             });
-
-            target._observer = new Observer();
 
             return new Proxy(target, {
                 set(obj, path, value) {

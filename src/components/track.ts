@@ -3,6 +3,7 @@ import TrackHeader from "./trackHeader";
 import { Track, Item } from "@/model";
 import colors from "@/colors";
 import { ItemView } from "./item";
+import { Rectangle } from "pixi.js";
 
 export interface ITrackViewProps {
     headerWidth: number;
@@ -15,11 +16,21 @@ export class TrackView extends Drawable<ITrackViewProps> {
     private items = this.createView<ArrayRenderer<Item, ItemView>>(ArrayRenderer);
 
     public setup() {
-        this.addChild(this.header);
+
         this.addChild(this.items);
+        this.addChild(this.header);
+
+        this.addDependency(this.root, "positionCalculator", undefined, true);
+        this.addDependency(this.root.app.renderer, "screen", "width");
 
         this.items.bind(this.props.track.items,
             (newItem) => this.createView(ItemView, { item: newItem, track: this.props.track }));
+
+        this.graphics.interactive = true;
+        (this.graphics as any).on("pointerover", () => {
+            this.root.eventManager.events.trackHovered.emit(this.props.track);
+        });
+
     }
 
     protected render(): void {
@@ -27,6 +38,7 @@ export class TrackView extends Drawable<ITrackViewProps> {
         // top and bottom borders
         this.drawLine(colors.markerLine, 0, 0, this.root.app.screen.width, 0);
         this.drawLine(colors.markerLine, 0, this.props.track.height, this.root.app.screen.width, this.props.track.height);
+        this.graphics.hitArea = new Rectangle(0, 0, this.root.app.screen.width, this.props.track.height);
 
         // markers
         this.root.positionCalculator.markers
@@ -35,11 +47,11 @@ export class TrackView extends Drawable<ITrackViewProps> {
                 this.drawLine(colors.markerLine, m.position, 0, m.position, this.props.track.height);
             });
 
-        this.header.props.width = this.props.headerWidth;
-        this.header.tick();
-
         this.items.graphics.x = this.props.headerWidth;
         this.items.tick();
+
+        this.header.props.width = this.props.headerWidth;
+        this.header.tick();
 
     }
 

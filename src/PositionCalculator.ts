@@ -14,7 +14,7 @@ export class PositionCalculator {
         let x = 0;
         do {
             x = this.getX(n);
-            if (x >= 0 && x < this.app.screen.width) {
+            if (x >= 0 && x < this._$_app.screen.width) {
                 if (n % this.markerMajorMultiplier === 0) {
                     markers.push({ type: "major", unit: n, position: x });
                 } else {
@@ -22,11 +22,11 @@ export class PositionCalculator {
                 }
             }
             n += this.markerSpace;
-        } while (x < this.app.screen.width);
+        } while (x < this._$_app.screen.width);
         return markers;
     }
 
-    constructor(private app: Application) { }
+    constructor(private _$_app: Application) { }
 
     public getX(units: number) {
         return units * this.unitWidth + this.offset;

@@ -46,6 +46,8 @@ export default class App extends Vue {
         app.ticker.add(() => t.tick());
 
         (window as any).$data = t;
+        window.addEventListener("keydown", (ev) => eventManager.events.keydown.emit(ev));
+        window.addEventListener("keyup", (ev) => eventManager.events.keyup.emit(ev));
 
     }
 

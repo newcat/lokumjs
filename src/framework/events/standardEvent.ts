@@ -12,7 +12,7 @@ export class StandardEvent<T> implements IEvent<T> {
         this.subscribers.delete(token);
     }
 
-    public emit(data?: T): void {
+    public emit(data: T): void {
         Array.from(this.subscribers.entries()).forEach(([k, v]) => v.call(k, data));
     }
 

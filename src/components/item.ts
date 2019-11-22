@@ -13,6 +13,7 @@ export class ItemView extends Drawable<IItemViewProps> {
         this.graphics.interactive = true;
         this.graphics.buttonMode = true;
         this.root.eventManager.events.pointerdown.subscribe(this.graphics, this.onClick.bind(this));
+        this.addDependency(this.root, "positionCalculator", undefined, true);
     }
 
     public render() {
