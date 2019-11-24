@@ -1,6 +1,8 @@
 import { Item, Track } from "@/model";
 import colors from "@/colors";
 import { Drawable } from "@/framework";
+import { Graphics } from "pixi.js";
+import { ItemArea } from "@/types";
 
 interface IItemViewProps {
     item: Item;
@@ -9,10 +11,24 @@ interface IItemViewProps {
 
 export class ItemView extends Drawable<IItemViewProps> {
 
+    private leftHandle = new Graphics();
+    private rightHandle = new Graphics();
+
     public setup() {
         this.graphics.interactive = true;
         this.graphics.buttonMode = true;
-        this.root.eventManager.events.pointerdown.subscribe(this.graphics, this.onClick.bind(this));
+
+        this.leftHandle.interactive = true;
+        this.leftHandle.cursor = "col-resize";
+        this.graphics.addChild(this.leftHandle);
+
+        this.rightHandle.interactive = true;
+        this.rightHandle.cursor = "col-resize";
+        this.graphics.addChild(this.rightHandle);
+
+        this.root.eventManager.events.pointerdown.subscribe(this.graphics, () => this.onClick("center"));
+        this.root.eventManager.events.pointerdown.subscribe(this.leftHandle, () => this.onClick("leftHandle"));
+        this.root.eventManager.events.pointerdown.subscribe(this.rightHandle, () => this.onClick("rightHandle"));
         this.addDependency(this.root, "positionCalculator", undefined, true);
     }
 
@@ -20,17 +36,28 @@ export class ItemView extends Drawable<IItemViewProps> {
         const x = this.root.positionCalculator.getX(this.props.item.start);
         const width = this.root.positionCalculator.getX(this.props.item.end) - x;
         if (this.props.item.selected) {
+            this.leftHandle.clear();
+            this.rightHandle.clear();
+            this.leftHandle
+                .lineStyle(2, colors.accent)
+                .beginFill(colors.accent)
+                    .drawRoundedRect(x - 5, this.props.track.height / 2 - 20, 5, 40, 3)
+                .endFill();
+            this.rightHandle
+                .lineStyle(2, colors.accent)
+                .beginFill(colors.accent)
+                    .drawRoundedRect(x + width, this.props.track.height / 2 - 20, 5, 40, 3)
+                .endFill();
             this.graphics
                 .lineStyle(2, colors.accent)
                 .beginFill(colors.secondary)
                     .drawRoundedRect(x, 10, width, this.props.track.height - 20, 5)
-                .endFill()
-                .beginFill(colors.accent)
-                    .drawRoundedRect(x - 5, this.props.track.height / 2 - 20, 5, 40, 3)
-                    .drawRoundedRect(x + width, this.props.track.height / 2 - 20, 5, 40, 3)
-                .endFill()
-                .lineStyle();
+                .endFill();
+            this.leftHandle.visible = true;
+            this.rightHandle.visible = true;
         } else {
+            this.leftHandle.visible = false;
+            this.rightHandle.visible = false;
             this.graphics
                 .beginFill(colors.secondary)
                     .drawRoundedRect(x, 10, width, this.props.track.height - 20, 5)
@@ -38,8 +65,8 @@ export class ItemView extends Drawable<IItemViewProps> {
         }
     }
 
-    private onClick() {
-        this.root.eventManager.events.itemClicked.emit({ item: this.props.item, area: "center" });
+    private onClick(area: ItemArea) {
+        this.root.eventManager.events.itemClicked.emit({ item: this.props.item, area });
     }
 
 }

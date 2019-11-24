@@ -18,6 +18,7 @@ export class ArrayRenderer<T, V extends Drawable<any>> extends Drawable<{}> {
         this.onNewItem = onNewItem;
         this.onRender = onRender;
         this.idFn = idFn;
+        this.addDependency(this, "array", undefined, true);
     }
 
     public render() {
@@ -34,12 +35,13 @@ export class ArrayRenderer<T, V extends Drawable<any>> extends Drawable<{}> {
             view.tick();
         });
 
-        const removedTracks = Array.from(this.views.keys())
+        const removedEntries = Array.from(this.views.keys())
             .filter((id) => !this.array.find((x) => id === this.getId(x)));
-        removedTracks.forEach((t) => {
+        removedEntries.forEach((t) => {
             const view = this.views.get(t)!;
             this.removeChild(view);
             view.destroy();
+            this.views.delete(t);
         });
 
     }

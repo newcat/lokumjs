@@ -31,7 +31,7 @@ export class TimelineView extends Drawable<ITimelineViewProps> {
     private dragItem: Item|null = null;
     private dragStartPosition = 0;
     private dragStartTrack: Track|null = null;
-    private dragStartStates: Item[] = [];
+    private dragStartStates: Array<{ item: Item, trackIndex: number }> = [];
     private ctrlPressed = false;
 
     public setup() {
@@ -42,9 +42,9 @@ export class TimelineView extends Drawable<ITimelineViewProps> {
         this.header = this.createView(HeaderView, { trackHeaderWidth: this.props.trackHeaderWidth });
         this.tracks = this.createView<ArrayRenderer<Track, TrackView>>(ArrayRenderer);
 
-        this.root.eventManager.events.pointerdown.subscribe(this.graphics, () => {
-            this.onMousedown();
-        });
+        this.root.eventManager.events.pointerdown.subscribe(this.graphics, (data) => {
+            this.onMousedown(data);
+        }, true);
         this.root.eventManager.events.pointerup.subscribe(this.graphics, () => {
             this.onMouseup();
         }, true);
@@ -109,7 +109,8 @@ export class TimelineView extends Drawable<ITimelineViewProps> {
         return this.getAllItems().filter((i) => i.selected);
     }
 
-    private onMousedown() {
+    private onMousedown(data: any) {
+        if (data.target && !data.target.ignoreClick) { return; }
         if (!this.ctrlPressed) {
             this.getAllItems().forEach((i) => { i.selected = false; });
         }
@@ -120,28 +121,29 @@ export class TimelineView extends Drawable<ITimelineViewProps> {
         const x = data.global.x;
         if (this.isDragging) {
             if (this.dragArea === "leftHandle") {
-                const newStart = this.root.positionCalculator.getUnit(x);
+                const newStart = this.root.positionCalculator.getUnit(x - this.props.trackHeaderWidth);
                 const track = this.props.editor.findTrackByItem(this.dragItem!)!;
                 if (this.props.editor.validateItem(track, {...this.dragItem!, start: newStart})) {
                     this.dragItem!.start = newStart;
                 }
             } else if (this.dragArea === "rightHandle") {
-                const newEnd = this.root.positionCalculator.getUnit(x);
+                const newEnd = this.root.positionCalculator.getUnit(x - this.props.trackHeaderWidth);
                 const track = this.props.editor.findTrackByItem(this.dragItem!)!;
                 if (this.props.editor.validateItem(track, {...this.dragItem!, end: newEnd})) {
                     this.dragItem!.end = newEnd;
                 }
             } else if (this.dragArea === "center") {
                 const diffUnits = Math.floor((data.global.x - this.dragStartPosition) / this.root.positionCalculator.unitWidth);
-
                 const startTrackIndex = this.props.editor.tracks.indexOf(this.dragStartTrack!);
                 const endTrackIndex = this.props.editor.tracks.indexOf(this.hoveredTrack!);
                 let diffTracks = 0;
                 if (startTrackIndex >= 0 && endTrackIndex >= 0) {
                     diffTracks = endTrackIndex - startTrackIndex;
                 }
-                this.dragStartStates.forEach((item) => {
-                    const trackIndex = this.props.editor.tracks.findIndex((t) => t.items.some((i) => i.id === item.id));
+
+                // check if some items would be dragged outside of the track bounds
+                this.dragStartStates.forEach((state) => {
+                    const trackIndex = state.trackIndex;
                     const newTrackIndex = trackIndex + diffTracks;
                     if (newTrackIndex < 0) {
                         diffTracks = -trackIndex;
@@ -150,18 +152,36 @@ export class TimelineView extends Drawable<ITimelineViewProps> {
                     }
                 });
 
-                this.dragStartStates.forEach((i) => {
-                    const item = this.getAllItems().find((j) => j.id === i.id)!;
-                    const newTrackIndex = this.props.editor.tracks.findIndex((t) => t.items.includes(item)) + diffTracks;
-                    if (this.props.editor.validateItem(this.props.editor.tracks[newTrackIndex], {
+                // validate all items
+                let valid = true;
+                this.dragStartStates.forEach((state) => {
+                    const item = this.getAllItems().find((j) => j.id === state.item.id)!;
+                    const newTrackIndex = state.trackIndex + diffTracks;
+                    const newTrack = this.props.editor.tracks[newTrackIndex];
+                    if (!this.props.editor.validateItem(newTrack, {
                         ...item,
-                        start: i.start + diffUnits,
-                        end: i.end + diffUnits
+                        start: state.item.start + diffUnits,
+                        end: state.item.end + diffUnits
                     })) {
-                        item.start = i.start + diffUnits;
-                        item.end = i.end + diffUnits;
+                        valid = false;
                     }
                 });
+
+                if (valid) {
+                    this.dragStartStates.forEach((state) => {
+                        const item = this.getAllItems().find((j) => j.id === state.item.id)!;
+                        const newTrackIndex = state.trackIndex + diffTracks;
+                        const newTrack = this.props.editor.tracks[newTrackIndex];
+                        const currentTrack = this.props.editor.findTrackByItem(item)!;
+                        if (currentTrack !== newTrack) {
+                            currentTrack.items.splice(currentTrack.items.indexOf(item), 1);
+                            newTrack.items.push(item);
+                        }
+                        item.start = state.item.start + diffUnits;
+                        item.end = state.item.end + diffUnits;
+                    });
+                }
+
             } else {
                 this.root.positionCalculator.offset += data.originalEvent.movementX;
                 if (this.root.positionCalculator.offset > 0) {
@@ -195,7 +215,11 @@ export class TimelineView extends Drawable<ITimelineViewProps> {
         this.dragStartPosition = this.root.app.renderer.plugins.interaction.mouse.global.x;
         this.dragStartTrack = this.hoveredTrack;
         this.isDragging = true;
-        this.dragStartStates = this.getSelectedItems().map((i) => JSON.parse(JSON.stringify(i)));
+        this.dragStartStates = this.getSelectedItems()
+            .map((i) => ({
+                item: JSON.parse(JSON.stringify(i)),
+                trackIndex: this.props.editor.tracks.indexOf(this.props.editor.findTrackByItem(i)!)
+            }));
     }
 
 }
