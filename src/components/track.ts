@@ -28,9 +28,6 @@ export class TrackView extends Drawable<ITrackViewProps> {
 
         this.graphics.interactive = true;
         (this.graphics as any).ignoreClick = true;
-        (this.graphics as any).on("pointerover", () => {
-            this.root.eventManager.events.trackHovered.emit(this.props.track);
-        });
 
     }
 

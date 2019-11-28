@@ -1,6 +1,6 @@
 import { Item, Track } from "@/model";
 import colors from "@/colors";
-import { Drawable } from "@/framework";
+import { Drawable, IMouseEventData } from "@/framework";
 import { Graphics } from "pixi.js";
 import { ItemArea } from "@/types";
 
@@ -26,9 +26,9 @@ export class ItemView extends Drawable<IItemViewProps> {
         this.rightHandle.cursor = "col-resize";
         this.graphics.addChild(this.rightHandle);
 
-        this.root.eventManager.events.pointerdown.subscribe(this.graphics, () => this.onClick("center"));
-        this.root.eventManager.events.pointerdown.subscribe(this.leftHandle, () => this.onClick("leftHandle"));
-        this.root.eventManager.events.pointerdown.subscribe(this.rightHandle, () => this.onClick("rightHandle"));
+        this.root.eventManager.events.pointerdown.subscribe(this.graphics, (data) => this.onClick(data, "center"));
+        this.root.eventManager.events.pointerdown.subscribe(this.leftHandle, (data) => this.onClick(data, "leftHandle"));
+        this.root.eventManager.events.pointerdown.subscribe(this.rightHandle, (data) => this.onClick(data, "rightHandle"));
         this.addDependency(this.root, "positionCalculator", undefined, true);
     }
 
@@ -65,82 +65,8 @@ export class ItemView extends Drawable<IItemViewProps> {
         }
     }
 
-    private onClick(area: ItemArea) {
-        this.root.eventManager.events.itemClicked.emit({ item: this.props.item, area });
+    private onClick(data: IMouseEventData, area: ItemArea) {
+        this.root.eventManager.events.itemClicked.emit({ item: this.props.item, area, event: data });
     }
 
 }
-
-/*
-@Component
-export default class ItemView extends Vue {
-
-    @Prop()
-    positionCalculator!: PositionCalculator;
-
-    @Prop()
-    item!: Item;
-
-    @Prop()
-    track!: Track;
-
-    @Prop()
-    y!: number;
-
-    @Inject()
-    editor!: Editor;
-
-    graphics: Graphics = new Graphics();
-
-    get start() {
-        return this.positionCalculator.getX(this.item.start);
-    }
-
-    get end() {
-        return this.positionCalculator.getX(this.item.end);
-    }
-
-    render(h: CreateElement) {
-        return h("template", this.$slots.default);
-    }
-
-    mounted() {
-        (this.$parent as any).registerGraphics(this.graphics);
-    }
-
-    updated() {
-        this.graphics.clear();
-
-        if (this.item.selected) {
-            this.graphics.lineStyle(2, colors.accent);
-        }
-
-        this.graphics
-            .beginFill(colors.secondary)
-                .drawRoundedRect(this.item.start, this.y + 10, this.item.end - this.item.start, this.track.height - 20, 5)
-            .endFill();
-
-        if (this.item.selected) {
-            this.graphics
-                .beginFill(colors.accent)
-                    .drawRoundedRect(this.item.start - 5, this.track.height / 2 - 20, 5, 40, 3)
-                    .drawRoundedRect(this.item.end, this.track.height / 2 - 20, 5, 40, 3)
-                .endFill();
-        }
-    }
-
-    destroyed() {
-        (this.$parent as any).unregisterGraphics(this.graphics);
-        this.graphics.destroy();
-    }
-
-    get itemComponent() {
-        return this.editor.itemComponent;
-    }
-
-    mousedown(ev: MouseEvent, area: ItemArea) {
-        this.$emit("mousedown", this.item, ev, area);
-    }
-
-}
-*/

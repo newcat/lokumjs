@@ -1,6 +1,6 @@
 import { Container, Point } from "pixi.js";
 import { Editor } from "../Editor";
-import { Drawable, ArrayRenderer } from "@/framework";
+import { Drawable, ArrayRenderer, IMouseEventData } from "@/framework";
 
 import { HeaderView } from "./header";
 import { TrackView } from "./track";
@@ -13,11 +13,6 @@ interface ITimelineViewProps {
     trackHeaderWidth: number;
 }
 
-interface IMouseEventData {
-    global: Point;
-    originalEvent: PointerEvent;
-}
-
 export class TimelineView extends Drawable<ITimelineViewProps> {
 
     private header!: HeaderView;
@@ -25,12 +20,11 @@ export class TimelineView extends Drawable<ITimelineViewProps> {
     private trackContainer = new Container();
     private trackOffsets: number[] = [];
 
-    private hoveredTrack: Track|null = null;
     private isDragging = false;
     private dragArea: ItemArea|"" = "";
-    private dragItem: Item|null = null;
+    private dragItem?: Item;
     private dragStartPosition = 0;
-    private dragStartTrack: Track|null = null;
+    private dragStartTrack?: Track;
     private dragStartStates: Array<{ item: Item, trackIndex: number }> = [];
     private ctrlPressed = false;
 
@@ -49,7 +43,7 @@ export class TimelineView extends Drawable<ITimelineViewProps> {
             this.onMouseup();
         }, true);
         this.root.eventManager.events.pointermove.subscribe(this.graphics, (data) => {
-            this.onMousemove(data.data);
+            this.onMousemove(data);
         }, true);
         this.root.eventManager.events.keydown.subscribe(this, (ev) => {
             if (ev.key === "Control") { this.ctrlPressed = true; }
@@ -59,10 +53,7 @@ export class TimelineView extends Drawable<ITimelineViewProps> {
         });
 
         this.root.eventManager.events.itemClicked.subscribe(this, (data) => {
-            this.onItemMousedown(data!.item, data!.area);
-        });
-        this.root.eventManager.events.trackHovered.subscribe(this, (track) => {
-            this.hoveredTrack = track;
+            this.onItemMousedown(data.item, data.area, data.event);
         });
 
         this.addChild(this.header);
@@ -110,6 +101,7 @@ export class TimelineView extends Drawable<ITimelineViewProps> {
     }
 
     private onMousedown(data: any) {
+        this.dragStartPosition = data.data.global.x;
         if (data.target && !data.target.ignoreClick) { return; }
         if (!this.ctrlPressed) {
             this.getAllItems().forEach((i) => { i.selected = false; });
@@ -118,7 +110,7 @@ export class TimelineView extends Drawable<ITimelineViewProps> {
     }
 
     private onMousemove(data: IMouseEventData) {
-        const x = data.global.x;
+        const x = data.data.global.x;
         if (this.isDragging) {
             if (this.dragArea === "leftHandle") {
                 const newStart = this.root.positionCalculator.getUnit(x - this.props.trackHeaderWidth);
@@ -133,12 +125,15 @@ export class TimelineView extends Drawable<ITimelineViewProps> {
                     this.dragItem!.end = newEnd;
                 }
             } else if (this.dragArea === "center") {
-                const diffUnits = Math.floor((data.global.x - this.dragStartPosition) / this.root.positionCalculator.unitWidth);
-                const startTrackIndex = this.props.editor.tracks.indexOf(this.dragStartTrack!);
-                const endTrackIndex = this.props.editor.tracks.indexOf(this.hoveredTrack!);
+                const diffUnits = Math.floor((x - this.dragStartPosition) / this.root.positionCalculator.unitWidth);
                 let diffTracks = 0;
-                if (startTrackIndex >= 0 && endTrackIndex >= 0) {
-                    diffTracks = endTrackIndex - startTrackIndex;
+                const hoveredTrack = this.findTrackByPoint(data.data.global);
+                if (this.dragStartTrack && hoveredTrack) {
+                    const startTrackIndex = this.props.editor.tracks.indexOf(this.dragStartTrack);
+                    const endTrackIndex = this.props.editor.tracks.indexOf(hoveredTrack);
+                    if (startTrackIndex >= 0 && endTrackIndex >= 0) {
+                        diffTracks = endTrackIndex - startTrackIndex;
+                    }
                 }
 
                 // check if some items would be dragged outside of the track bounds
@@ -153,6 +148,7 @@ export class TimelineView extends Drawable<ITimelineViewProps> {
                 });
 
                 // validate all items
+                // TODO: Dont validate items one after another!
                 let valid = true;
                 this.dragStartStates.forEach((state) => {
                     const item = this.getAllItems().find((j) => j.id === state.item.id)!;
@@ -183,7 +179,8 @@ export class TimelineView extends Drawable<ITimelineViewProps> {
                 }
 
             } else {
-                this.root.positionCalculator.offset += data.originalEvent.movementX;
+                this.root.positionCalculator.offset += data.data.global.x - this.dragStartPosition;
+                this.dragStartPosition = data.data.global.x;
                 if (this.root.positionCalculator.offset > 0) {
                     this.root.positionCalculator.offset = 0;
                 }
@@ -192,12 +189,12 @@ export class TimelineView extends Drawable<ITimelineViewProps> {
     }
 
     private onMouseup() {
-        this.dragItem = null;
+        this.dragItem = undefined;
         this.isDragging = false;
         this.dragArea = "";
     }
 
-    private onItemMousedown(item: Item, area: ItemArea) {
+    private onItemMousedown(item: Item, area: ItemArea, data: IMouseEventData) {
         if (area === "center") {
             if (this.ctrlPressed) {
                 if (item.selected) {
@@ -212,14 +209,23 @@ export class TimelineView extends Drawable<ITimelineViewProps> {
         }
         this.dragArea = area;
         this.dragItem = item;
-        this.dragStartPosition = this.root.app.renderer.plugins.interaction.mouse.global.x;
-        this.dragStartTrack = this.hoveredTrack;
+        this.dragStartTrack = this.findTrackByPoint(data.data.global);
         this.isDragging = true;
         this.dragStartStates = this.getSelectedItems()
             .map((i) => ({
                 item: JSON.parse(JSON.stringify(i)),
                 trackIndex: this.props.editor.tracks.indexOf(this.props.editor.findTrackByItem(i)!)
             }));
+    }
+
+    private findTrackByPoint(p: Point): Track|undefined {
+        const arr = Array.from(this.tracks.views.entries());
+        for (const [k, v] of arr) {
+            if (this.root.app.renderer.plugins.interaction.hitTest(p, v.graphics)) {
+                return k;
+            }
+        }
+        return undefined;
     }
 
 }

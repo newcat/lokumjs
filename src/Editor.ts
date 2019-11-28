@@ -5,7 +5,7 @@ export class Editor {
     public tracks: Track[] = [];
 
     public validateItem(track: Track, item: Item) {
-        const isValidItself = item.start < item.end;
+        const isValidItself = item.start < item.end && item.start >= 0 && item.end >= 0;
         return isValidItself && !track.items.some((i) =>
             i.id !== item.id &&
             ((i.start <= item.start && i.end >= item.start) ||

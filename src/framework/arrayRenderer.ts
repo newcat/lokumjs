@@ -1,18 +1,19 @@
 import { Drawable } from "./drawable";
 
-export class ArrayRenderer<T, V extends Drawable<any>> extends Drawable<{}> {
+export class ArrayRenderer<T, V extends Drawable<any>, I = T> extends Drawable<{}> {
 
-    private views = new Map<any, V>();
+    public views = new Map<I, V>();
+
     private array!: T[];
     private onNewItem!: (newItem: T, index: number, array: T[]) => V;
-    private onRender?: (view: V, item: T, index: number, array: T[]) => any;
-    private idFn?: (item: T) => any;
+    private onRender?: (view: V, item: T, index: number, array: T[]) => void;
+    private idFn?: (item: T) => I;
 
     public bind(
         array: T[],
         onNewItem: (newItem: T, index: number, array: T[]) => V,
         onRender?: (view: V, item: T, index: number, array: T[]) => any,
-        idFn?: (item: T) => any
+        idFn?: (item: T) => I
     ) {
         this.array = array;
         this.onNewItem = onNewItem;
@@ -46,8 +47,8 @@ export class ArrayRenderer<T, V extends Drawable<any>> extends Drawable<{}> {
 
     }
 
-    private getId(item: T) {
-        return this.idFn ? this.idFn(item) : item;
+    private getId(item: T): I {
+        return this.idFn ? this.idFn(item) : item as unknown as I;
     }
 
 }
