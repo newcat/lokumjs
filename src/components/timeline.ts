@@ -59,6 +59,9 @@ export class TimelineView extends Drawable<ITimelineViewProps> {
         this.root.eventManager.events.itemClicked.subscribe(this, (data) => {
             this.onItemMousedown(data.item, data.area, data.event);
         });
+        this.root.eventManager.events.removeTrack.subscribe(this, (track) => {
+            this.props.editor.removeTrack(track);
+        });
 
         this.graphics.addChild(this.trackContainer);
         this.addChild(this.header);
@@ -89,7 +92,7 @@ export class TimelineView extends Drawable<ITimelineViewProps> {
 
     }
 
-    private getTrackOffsets(tracks: Track[]) {
+    private getTrackOffsets(tracks: ReadonlyArray<Track>) {
         const offsets = [0];
         let prev = 0;
         tracks.forEach((t) => {

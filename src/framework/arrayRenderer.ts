@@ -4,15 +4,15 @@ export class ArrayRenderer<T, V extends Drawable<any>, I = T> extends Drawable<{
 
     public views = new Map<I, V>();
 
-    private array!: T[];
-    private onNewItem!: (newItem: T, index: number, array: T[]) => V;
-    private onRender?: (view: V, item: T, index: number, array: T[]) => void;
+    private array!: ReadonlyArray<T>;
+    private onNewItem!: (newItem: T, index: number, array: ReadonlyArray<T>) => V;
+    private onRender?: (view: V, item: T, index: number, array: ReadonlyArray<T>) => void;
     private idFn?: (item: T) => I;
 
     public bind(
-        array: T[],
-        onNewItem: (newItem: T, index: number, array: T[]) => V,
-        onRender?: (view: V, item: T, index: number, array: T[]) => any,
+        array: ReadonlyArray<T>,
+        onNewItem: (newItem: T, index: number, array: ReadonlyArray<T>) => V,
+        onRender?: (view: V, item: T, index: number, array: ReadonlyArray<T>) => any,
         idFn?: (item: T) => I
     ) {
         this.array = array;

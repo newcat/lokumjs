@@ -1,6 +1,6 @@
 import { GraphicsEvent, StandardEvent } from "./events";
 import { interaction, Point } from "pixi.js";
-import { Item } from "@/model";
+import { Item, Track } from "@/model";
 import { ItemArea } from "@/types";
 
 export interface IMouseEventData {
@@ -19,9 +19,10 @@ export class EventManager {
         pointermove: new GraphicsEvent(),
         pointerover: new GraphicsEvent(),
         pointerout: new GraphicsEvent(),
-        itemClicked: new StandardEvent<{ item: Item, area: ItemArea, event: IMouseEventData }>(),
         keydown: new StandardEvent<KeyboardEvent>(),
-        keyup: new StandardEvent<KeyboardEvent>()
+        keyup: new StandardEvent<KeyboardEvent>(),
+        itemClicked: new StandardEvent<{ item: Item, area: ItemArea, event: IMouseEventData }>(),
+        removeTrack: new StandardEvent<Track>()
     };
 
     public constructor(intMng: interaction.InteractionManager) {

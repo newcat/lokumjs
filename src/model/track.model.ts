@@ -7,6 +7,7 @@ export class Track {
     public name: string;
     public height = 100;
     public items: Item[] = [];
+    public removable = true;
 
     public constructor(name: string) {
         this.name = name;
