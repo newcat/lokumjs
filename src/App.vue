@@ -1,7 +1,10 @@
 <template>
+<div>
     <div id="app" ref="wrapper" style="width:100%;height:600px;">
         <canvas ref="canvas"></canvas>
     </div>
+    <button @click="addTrack">Add Track</button>
+</div>
 </template>
 
 <script lang="ts">
@@ -25,7 +28,9 @@ export default class App extends Vue {
         const track3 = new Track("Track 3");
         const track4 = new Track("Track 4");
         const track5 = new Track("Track 5");
-        track1.items.push(new Item(5, 10, { text: "Item 1" }));
+        const i = new Item(5, 10, { text: "Item 1" });
+        i.resizable = false;
+        track1.items.push(i);
         track1.items.push(new Item(15, 30, { text: "Item 2" }));
         track2.items.push(new Item(8, 25, { text: "Item 3" }));
         this.editor.tracks.push(track1, track2, track3, track4, track5);
@@ -49,6 +54,10 @@ export default class App extends Vue {
         window.addEventListener("keydown", (ev) => eventManager.events.keydown.emit(ev));
         window.addEventListener("keyup", (ev) => eventManager.events.keyup.emit(ev));
 
+    }
+
+    addTrack() {
+        this.editor.tracks.push(new Track("Track " + (this.editor.tracks.length + 1)));
     }
 
 }

@@ -8,6 +8,7 @@ export interface IMouseEventData {
         global: Point;
         originalEvent: PointerEvent;
     };
+    target: any;
 }
 
 export class EventManager {

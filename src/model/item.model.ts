@@ -6,6 +6,7 @@ export class Item {
     public start: number;
     public end: number;
     public selected = false;
+    public resizable = true;
     public data?: Record<string, any>;
 
     public constructor(start: number, end: number, data?: Record<string, any>) {

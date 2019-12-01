@@ -36,25 +36,30 @@ export class ItemView extends Drawable<IItemViewProps> {
         const x = this.root.positionCalculator.getX(this.props.item.start);
         const width = this.root.positionCalculator.getX(this.props.item.end) - x;
         if (this.props.item.selected) {
-            this.leftHandle.clear();
-            this.rightHandle.clear();
-            this.leftHandle
-                .lineStyle(2, colors.accent)
-                .beginFill(colors.accent)
-                    .drawRoundedRect(x - 5, this.props.track.height / 2 - 20, 5, 40, 3)
-                .endFill();
-            this.rightHandle
-                .lineStyle(2, colors.accent)
-                .beginFill(colors.accent)
-                    .drawRoundedRect(x + width, this.props.track.height / 2 - 20, 5, 40, 3)
-                .endFill();
+            if (this.props.item.resizable) {
+                this.leftHandle.clear();
+                this.rightHandle.clear();
+                this.leftHandle
+                    .lineStyle(2, colors.accent)
+                    .beginFill(colors.accent)
+                        .drawRoundedRect(x - 5, this.props.track.height / 2 - 20, 5, 40, 3)
+                    .endFill();
+                this.rightHandle
+                    .lineStyle(2, colors.accent)
+                    .beginFill(colors.accent)
+                        .drawRoundedRect(x + width, this.props.track.height / 2 - 20, 5, 40, 3)
+                    .endFill();
+                this.leftHandle.visible = true;
+                this.rightHandle.visible = true;
+            } else {
+                this.leftHandle.visible = false;
+                this.rightHandle.visible = false;
+            }
             this.graphics
                 .lineStyle(2, colors.accent)
                 .beginFill(colors.secondary)
                     .drawRoundedRect(x, 10, width, this.props.track.height - 20, 5)
                 .endFill();
-            this.leftHandle.visible = true;
-            this.rightHandle.visible = true;
         } else {
             this.leftHandle.visible = false;
             this.rightHandle.visible = false;

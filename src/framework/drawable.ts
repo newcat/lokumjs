@@ -50,9 +50,11 @@ export abstract class Drawable<Props extends PropsType> {
         this.observers.forEach((o) => o.unregisterWatcher(this));
     }
 
-    public addChild(child: Drawable<any>) {
+    public addChild(child: Drawable<any>, addToGraphics = true) {
         this.children.push(child);
-        this.graphics.addChild(child.graphics);
+        if (addToGraphics) {
+            this.graphics.addChild(child.graphics);
+        }
     }
 
     public removeChild(child: Drawable<any>) {
