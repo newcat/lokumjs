@@ -20,6 +20,14 @@ export class Editor {
         }
     }
 
+    public removeItem(item: Item) {
+        const items = this.findTrackByItem(item)?.items;
+        if (items) {
+            const i = items.indexOf(item);
+            if (i >= 0) { items.splice(i, 1); }
+        }
+    }
+
     public validateItem(track: Track, item: Item) {
         const isValidItself = item.start < item.end && item.start >= 0 && item.end >= 0;
         return isValidItself && !track.items.some((i) =>

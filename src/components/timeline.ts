@@ -51,6 +51,7 @@ export class TimelineView extends Drawable<ITimelineViewProps> {
         }, true);
         this.root.eventManager.events.keydown.subscribe(this, (ev) => {
             if (ev.key === "Control") { this.ctrlPressed = true; }
+            if (ev.key === "Delete") { this.getSelectedItems().forEach((i) => this.props.editor.removeItem(i)); }
         });
         this.root.eventManager.events.keyup.subscribe(this, (ev) => {
             if (ev.key === "Control") { this.ctrlPressed = false; }
