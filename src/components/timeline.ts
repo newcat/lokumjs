@@ -1,5 +1,5 @@
 import { Container, Point } from "pixi.js";
-import { Editor } from "../Editor";
+import { Editor } from "../editor";
 import { Drawable, ArrayRenderer, IMouseEventData } from "@/framework";
 
 import { HeaderView } from "./header";

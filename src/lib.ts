@@ -1,17 +1,19 @@
 import { TimelineView } from "./components/timeline";
-import { Editor } from "./Editor";
+import { Editor } from "./editor";
 import { Application } from "pixi.js";
-import { PositionCalculator } from "./PositionCalculator";
+import { PositionCalculator } from "./positionCalculator";
 import { EventManager } from "./framework";
 import { loadTextures } from "./textureManager";
 
-export * from "./Editor";
+export * from "./editor";
+export * from "./model";
 
 export async function createTimeline(editor: Editor, wrapperEl: HTMLElement) {
 
+    const canvasEl = wrapperEl.appendChild(document.createElement("canvas"));
     const app = new Application({
-        view: document.getElementById("canvas") as HTMLCanvasElement,
-        resizeTo: document.getElementById("wrapper") as HTMLElement,
+        view: canvasEl as HTMLCanvasElement,
+        resizeTo: wrapperEl,
         antialias: true
     });
 

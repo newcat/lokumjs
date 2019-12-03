@@ -6,7 +6,7 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 module.exports = {
     mode: "production",
     entry: {
-        index: path.resolve(__dirname, "src", "lib.ts")
+        lib: path.resolve(__dirname, "src", "lib.ts")
     },
     module: {
         rules: [

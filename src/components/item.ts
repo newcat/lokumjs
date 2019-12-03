@@ -13,6 +13,7 @@ export class ItemView extends Drawable<IItemViewProps> {
 
     private leftHandle = new Graphics();
     private rightHandle = new Graphics();
+    private contentGraphics = new Graphics();
 
     public setup() {
         this.graphics.interactive = true;
@@ -25,6 +26,8 @@ export class ItemView extends Drawable<IItemViewProps> {
         this.rightHandle.interactive = true;
         this.rightHandle.cursor = "col-resize";
         this.graphics.addChild(this.rightHandle);
+
+        this.graphics.addChild(this.contentGraphics);
 
         this.root.eventManager.events.pointerdown.subscribe(this.graphics, (data) => this.onClick(data, "center"));
         this.root.eventManager.events.pointerdown.subscribe(this.leftHandle, (data) => this.onClick(data, "leftHandle"));
@@ -68,6 +71,15 @@ export class ItemView extends Drawable<IItemViewProps> {
                     .drawRoundedRect(x, 10, width, this.props.track.height - 20, 5)
                 .endFill();
         }
+        this.contentGraphics.x = x;
+        this.contentGraphics.y = 10;
+        this.contentGraphics.clear();
+        this.root.eventManager.events.renderItem.emit({
+            item: this.props.item,
+            graphics: this.contentGraphics,
+            width,
+            height: this.props.track.height - 20
+        });
     }
 
     private onClick(data: IMouseEventData, area: ItemArea) {

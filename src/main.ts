@@ -1,11 +1,4 @@
-import { TimelineView } from "./components/timeline";
-import { Editor } from "./Editor";
-
-import * as PIXI from "pixi.js";
-import { Track, Item } from "./model";
-import { PositionCalculator } from "./PositionCalculator";
-import { EventManager } from "./framework";
-import { loadTextures } from "./textureManager";
+import { createTimeline, Editor, Track, Item } from "./lib";
 
 const editor = new Editor();
 
@@ -30,25 +23,17 @@ window.addEventListener("load", async () => {
         editor.addTrack(t);
     });
 
-    const app = new PIXI.Application({
-        view: document.getElementById("canvas") as HTMLCanvasElement,
-        resizeTo: document.getElementById("wrapper") as HTMLElement,
-        antialias: true
-    });
-
-    const positionCalculator = new PositionCalculator(app);
-    const eventManager = new EventManager(app.renderer.plugins.interaction);
-    const textures = await loadTextures();
-    const root = { app, positionCalculator, eventManager, textures };
-
-    const timeline = new TimelineView(root, { editor });
-    timeline.setup();
-    app.stage.addChild(timeline.graphics);
-    app.ticker.add(() => timeline.tick());
+    const wrapperEl = document.getElementById("wrapper") as HTMLElement;
+    const { timeline, root } = await createTimeline(editor, wrapperEl);
 
     (window as any).$data = timeline;
-    window.addEventListener("keydown", (ev) => eventManager.events.keydown.emit(ev));
-    window.addEventListener("keyup", (ev) => eventManager.events.keyup.emit(ev));
     document.getElementById("addTrackBtn")?.addEventListener("click", addTrack);
+
+    root.eventManager.events.renderItem.subscribe(Symbol(), ({ item, graphics, width, height }) => {
+        graphics
+            .beginFill(0xff0000)
+                .drawRoundedRect(10, 10, width - 20, height - 20, 5)
+            .endFill();
+    });
 
 });

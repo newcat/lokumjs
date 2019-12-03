@@ -1,5 +1,5 @@
 import { GraphicsEvent, StandardEvent } from "./events";
-import { interaction, Point } from "pixi.js";
+import { interaction, Point, Graphics, Rectangle } from "pixi.js";
 import { Item, Track } from "@/model";
 import { ItemArea } from "@/types";
 
@@ -22,7 +22,8 @@ export class EventManager {
         keydown: new StandardEvent<KeyboardEvent>(),
         keyup: new StandardEvent<KeyboardEvent>(),
         itemClicked: new StandardEvent<{ item: Item, area: ItemArea, event: IMouseEventData }>(),
-        removeTrack: new StandardEvent<Track>()
+        removeTrack: new StandardEvent<Track>(),
+        renderItem: new StandardEvent<{ item: Item, graphics: Graphics, width: number, height: number }>()
     };
 
     public constructor(intMng: interaction.InteractionManager) {
