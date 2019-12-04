@@ -5,6 +5,8 @@
     "serve": "webpack-dev-server --config webpack.dev.js",
     "build": "webpack --progress --config webpack.config.js"
   },
+  "main": "dist/lib.js",
+  "types": "dist/lib.d.ts",
   "dependencies": {},
   "devDependencies": {
     "@types/uuid": "^3.4.5",
