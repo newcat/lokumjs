@@ -1,6 +1,6 @@
-import { Track } from "@/model";
-import { Drawable } from "@/framework";
-import colors from "@/colors";
+import { Track } from "../model";
+import { Drawable } from "../framework";
+import colors from "../colors";
 import { Sprite, TextStyle, Text } from "pixi.js";
 
 interface ITrackHeaderViewProps {

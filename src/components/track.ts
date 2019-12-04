@@ -1,7 +1,7 @@
-import { Drawable, ArrayRenderer } from "@/framework";
+import { Drawable, ArrayRenderer } from "../framework";
 import TrackHeader from "./trackHeader";
-import { Track, Item } from "@/model";
-import colors from "@/colors";
+import { Track, Item } from "../model";
+import colors from "../colors";
 import { ItemView } from "./item";
 import { Rectangle } from "pixi.js";
 

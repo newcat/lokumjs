@@ -1,8 +1,8 @@
 import { Graphics, Application } from "pixi.js";
 import { Observer } from "./observer";
-import { PositionCalculator } from "@/PositionCalculator";
+import { PositionCalculator } from "../PositionCalculator";
 import { EventManager } from "./eventManager";
-import { ITextures } from "@/textureManager";
+import { ITextures } from "../textureManager";
 
 export interface IRoot {
     app: Application;

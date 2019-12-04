@@ -1,8 +1,8 @@
-import { Item, Track } from "@/model";
-import colors from "@/colors";
-import { Drawable, IMouseEventData } from "@/framework";
+import { Item, Track } from "../model";
+import colors from "../colors";
+import { Drawable, IMouseEventData } from "../framework";
 import { Graphics } from "pixi.js";
-import { ItemArea } from "@/types";
+import { ItemArea } from "../types";
 
 interface IItemViewProps {
     item: Item;

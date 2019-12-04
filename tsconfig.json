@@ -13,11 +13,6 @@
         "declaration": true,
         "declarationDir": "dist",
         "baseUrl": ".",
-        "paths": {
-            "@/*": [
-                "src/*"
-            ]
-        },
         "lib": [
             "esnext",
             "dom",

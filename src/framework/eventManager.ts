@@ -1,7 +1,7 @@
 import { GraphicsEvent, StandardEvent } from "./events";
-import { interaction, Point, Graphics, Rectangle } from "pixi.js";
-import { Item, Track } from "@/model";
-import { ItemArea } from "@/types";
+import { interaction, Point, Graphics } from "pixi.js";
+import { Item, Track } from "../model";
+import { ItemArea } from "../types";
 
 export interface IMouseEventData {
     data: {

@@ -1,6 +1,6 @@
 import { Graphics, Text, TextStyle } from "pixi.js";
-import { Drawable } from "@/framework";
-import colors from "@/colors";
+import { Drawable } from "../framework";
+import colors from "../colors";
 
 interface IHeaderViewProps {
     headerHeight: number;

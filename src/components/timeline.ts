@@ -1,12 +1,12 @@
 import { Container, Point } from "pixi.js";
 import { Editor } from "../editor";
-import { Drawable, ArrayRenderer, IMouseEventData } from "@/framework";
+import { Drawable, ArrayRenderer, IMouseEventData } from "../framework";
 
 import { HeaderView } from "./header";
 import { TrackView } from "./track";
-import colors from "@/colors";
-import { Track, Item } from "@/model";
-import { ItemArea } from "@/types";
+import colors from "../colors";
+import { Track, Item } from "../model";
+import { ItemArea } from "../types";
 
 interface ITimelineViewProps {
     editor: Editor;
