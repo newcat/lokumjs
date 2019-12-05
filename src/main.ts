@@ -1,4 +1,5 @@
 import { createTimeline, Editor, Track, Item } from "./lib";
+import { Text, TextStyle } from "pixi.js";
 
 const editor = new Editor();
 
@@ -34,6 +35,14 @@ window.addEventListener("load", async () => {
             .beginFill(0xff0000)
                 .drawRoundedRect(10, 10, width - 20, height - 20, 5)
             .endFill();
+    });
+
+    const style = new TextStyle({ fontSize: 10, fill: 0xffffff });
+    const fpsText = new Text("FPS", style);
+    fpsText.position.set(10, 10);
+    root.app.stage.addChild(fpsText);
+    root.app.ticker.add(() => {
+        fpsText.text = root.app.ticker.elapsedMS.toFixed(2);
     });
 
 });
