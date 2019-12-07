@@ -12,8 +12,8 @@ export interface ITrackViewProps {
 
 export class TrackView extends Drawable<ITrackViewProps> {
 
-    private header = this.createView(TrackHeader, { track: this.props.track });
-    private items = this.createView<ArrayRenderer<Item, ItemView>>(ArrayRenderer);
+    public header = this.createView(TrackHeader, { track: this.props.track });
+    public items = this.createView<ArrayRenderer<Item, ItemView>>(ArrayRenderer);
 
     public setup() {
 

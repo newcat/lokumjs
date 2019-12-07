@@ -15,8 +15,8 @@ interface ITimelineViewProps {
 
 export class TimelineView extends Drawable<ITimelineViewProps> {
 
-    private header!: HeaderView;
-    private tracks!: ArrayRenderer<Track, TrackView>;
+    public header!: HeaderView;
+    public tracks!: ArrayRenderer<Track, TrackView>;
     private trackContainer = new Container();
     private trackOffsets: number[] = [];
 
