@@ -1,6 +1,6 @@
 {
   "name": "lokumjs",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "scripts": {
     "serve": "webpack-dev-server --config webpack.dev.js",
     "build": "webpack --progress --config webpack.config.js"
