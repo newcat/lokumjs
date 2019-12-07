@@ -7,6 +7,10 @@ function addTrack() {
     editor.addTrack(new Track("Track " + (editor.tracks.length + 1)));
 }
 
+function addItem() {
+    editor.tracks[0].items.push(new Item(50, 80, { text: "Item X" }));
+}
+
 window.addEventListener("load", async () => {
 
     const track1 = new Track("Track 1");
@@ -29,6 +33,7 @@ window.addEventListener("load", async () => {
 
     (window as any).$data = timeline;
     document.getElementById("addTrackBtn")?.addEventListener("click", addTrack);
+    document.getElementById("addItemBtn")?.addEventListener("click", addItem);
 
     root.eventManager.events.renderItem.subscribe(Symbol(), ({ item, graphics, width, height }) => {
         graphics

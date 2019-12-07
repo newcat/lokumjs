@@ -8,6 +8,8 @@ import { loadTextures } from "./textureManager";
 export * from "./editor";
 export * from "./model";
 
+// TODO: Find a way to prevent Vue from destroying the custom change detection
+
 export async function createTimeline(editor: Editor, wrapperEl: HTMLElement) {
 
     const canvasEl = wrapperEl.appendChild(document.createElement("canvas"));
