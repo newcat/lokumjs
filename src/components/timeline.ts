@@ -56,6 +56,7 @@ export class TimelineView extends Drawable<ITimelineViewProps> {
         this.root.eventManager.events.keyup.subscribe(this, (ev) => {
             if (ev.key === "Control") { this.ctrlPressed = false; }
         });
+        this.root.eventManager.events.resize.subscribe(this, () => { this.needsRender = true; });
 
         this.root.eventManager.events.itemClicked.subscribe(this, (data) => {
             this.onItemMousedown(data.item, data.area, data.event);
@@ -112,7 +113,7 @@ export class TimelineView extends Drawable<ITimelineViewProps> {
 
     private onMousedown(data: IMouseEventData) {
         this.dragStartPosition = data.data.global.clone();
-        if (data.target && !data.target.ignoreClick) { return; }
+        if (data.target && !data.target.ignoreClick && data.target !== this.graphics) { return; }
         if (!this.ctrlPressed) {
             this.getAllItems().forEach((i) => { i.selected = false; });
         }

@@ -21,7 +21,7 @@ export class TrackView extends Drawable<ITrackViewProps> {
         this.addChild(this.header);
 
         this.addDependency(this.root, "positionCalculator", undefined, true);
-        this.addDependency(this.root.app.renderer, "screen", "width");
+        this.root.eventManager.events.resize.subscribe(this, () => { this.needsRender = true; });
 
         this.items.bind(this.props.track.items,
             (newItem) => this.createView(ItemView, { item: newItem, track: this.props.track }));

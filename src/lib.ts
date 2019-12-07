@@ -2,13 +2,11 @@ import { TimelineView } from "./components/timeline";
 import { Editor } from "./editor";
 import { Application } from "pixi.js";
 import { PositionCalculator } from "./positionCalculator";
-import { EventManager } from "./framework";
+import { EventManager, Observer } from "./framework";
 import { loadTextures } from "./textureManager";
 
 export * from "./editor";
 export * from "./model";
-
-// TODO: Find a way to prevent Vue from destroying the custom change detection
 
 export async function createTimeline(editor: Editor, wrapperEl: HTMLElement) {
 
@@ -32,6 +30,15 @@ export async function createTimeline(editor: Editor, wrapperEl: HTMLElement) {
     // TODO: Only trigger when the current canvas is focused
     window.addEventListener("keydown", (ev) => eventManager.events.keydown.emit(ev));
     window.addEventListener("keyup", (ev) => eventManager.events.keyup.emit(ev));
+
+    const proxy = Observer.observe(app.renderer.screen, true);
+    app.renderer.screen = proxy;
+    proxy._observer.registerWatcher(Symbol(), (changedPath) => {
+        if (changedPath === "width" || changedPath === "height") {
+            const { width, height } = app.renderer.screen;
+            eventManager.events.resize.emit({ width, height });
+        }
+    });
 
     return { timeline, root };
 

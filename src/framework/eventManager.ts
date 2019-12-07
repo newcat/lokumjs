@@ -23,7 +23,8 @@ export class EventManager {
         keyup: new StandardEvent<KeyboardEvent>(),
         itemClicked: new StandardEvent<{ item: Item, area: ItemArea, event: IMouseEventData }>(),
         removeTrack: new StandardEvent<Track>(),
-        renderItem: new StandardEvent<{ item: Item, graphics: Graphics, width: number, height: number }>()
+        renderItem: new StandardEvent<{ item: Item, graphics: Graphics, width: number, height: number }>(),
+        resize: new StandardEvent<{ width: number, height: number }>()
     };
 
     public constructor(intMng: interaction.InteractionManager) {
